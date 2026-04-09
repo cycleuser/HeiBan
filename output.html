@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幻灯片</title>
+    <link rel="stylesheet" href="lib/css/reveal.min.css">
+    <link rel="stylesheet" href="lib/css/github-dark.min.css">
+    <style>
+
+        :root {
+            --r-background-color: #ffffff;
+            --r-main-font: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --r-heading-font: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        .reveal { font-size: 26px; }
+        .reveal h1 {{ font-size: 2.2em; color: #1a1a2e; margin-bottom: 0.4em; }}
+        .reveal h2 {{ font-size: 1.6em; color: #2d5a7b; margin-bottom: 0.4em; }}
+        .reveal h3 {{ font-size: 1.2em; color: #4a4a6a; }}
+        .reveal ul, .reveal ol {{ display: block; text-align: left; margin-left: 1.5em; }}
+        .reveal li {{ margin: 0.3em 0; }}
+        .reveal code {{ background: #f5f5f5; padding: 0.1em 0.3em; border-radius: 3px; font-size: 0.9em; }}
+        .reveal pre {{ width: 100%; font-size: 0.65em; margin: 0.5em 0; background: #1e1e1e; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: left; }}
+        .reveal pre code {{ padding: 1em; max-height: 600px; line-height: 1.5; text-align: left; display: block; }}
+        .reveal table {{ width: 100%; border-collapse: collapse; font-size: 0.8em; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }}
+        .reveal table th {{ background: #2d5a7b; color: white; padding: 0.5em; }}
+        .reveal table td {{ padding: 0.4em 0.6em; border-bottom: 1px solid #eee; }}
+        .reveal table tr:nth-child(even) {{ background: #f8f9fa; }}
+        .columns {{ display: flex; gap: 2em; }}
+        .columns > div {{ flex: 1; }}
+        .reveal img {{ max-width: 100%; height: auto; }}
+        .reveal section {{ padding: 1em; }}
+        .reveal p {{ margin: 0.5em 0; }}
+    
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <section>
+                <h1>第1章 开发环境配置</h1>
+            </section>
+
+            <section>
+                <h2>1.1 为什么要学C语言</h2>
+                <p>C语言是计算机科学的基石：</p>
+                <ul>
+                    <li><strong>操作系统层</strong>：Linux/Windows内核用C编写</li>
+                    <li><strong>系统编程层</strong>：驱动程序、嵌入式开发</li>
+                    <li><strong>应用开发层</strong>：数据库(MySQL)、编译器(GCC)、游戏引擎</li>
+                    <li><strong>学习基础层</strong>：理解计算机底层原理的最佳语言</li>
+                </ul>
+                <p>相比于上学期所学的Python，C或许稍微复杂一点，但性能更好。</p>
+                <p>现代C语言标准持续演进：C11/C17/C23，依然是性能关键型应用首选。</p>
+                <p>目前广泛应用的大语言模型运行框架 llama.cpp 就是基于C/C++开发的，提供了比Python更强的性能。</p>
+                <p>如果更加关注内存安全性，可以进一步尝试golang或者rust。</p>
+                <p><strong>千里之行，始于足下，积跬步以至千里。</strong></p>
+            </section>
+
+            <section>
+                <h2>1.2 主流C语言编译器对比</h2>
+                <table>
+                    <tr><th>编译器</th><th>开发商</th><th>主要特点</th><th>适用平台</th></tr>
+                    <tr><td>**GCC**</td><td>GNU项目</td><td>历史最悠久，Linux默认，开源免费</td><td>Linux/Unix为主，也支持Windows</td></tr>
+                    <tr><td>**Clang**</td><td>LLVM项目</td><td>模块化设计，错误信息友好，编译速度快</td><td>高性能、跨平台</td></tr>
+                    <tr><td>**MSVC**</td><td>Microsoft</td><td>Windows原生，Visual Studio集成</td><td>Windows</td></tr>
+                </table>
+                <p>本课程选用 <strong>GCC/Clang/LLVM</strong>，优势：</p>
+                <ul>
+                    <li>更清晰的错误提示</li>
+                    <li>更好的诊断信息</li>
+                    <li>现代化工具链</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>1.3 LLVM项目架构</h2>
+                <p>LLVM采用前后端分离设计：</p>
+                <p><strong>前端</strong>（Front End）：</p>
+                <ul>
+                    <li>Clang (C)</li>
+                    <li>Clang (C++)</li>
+                    <li>Clang (Objective-C)</li>
+                </ul>
+                <p>其实不仅有C。</p>
+                <p><strong>中间表示</strong>（LLVM IR）：统一优化器</p>
+                <p><strong>后端</strong>（Back End）：</p>
+                <ul>
+                    <li>x86</li>
+                    <li>ARM</li>
+                    <li>RISC-V</li>
+                </ul>
+                <p>优势：统一优化器，跨平台代码优化。</p>
+            </section>
+
+            <section>
+                <h2>1.4 开发环境安装</h2>
+                <h3>Windows系统安装</h3>
+                <p>1. 打开 Windows 终端</p>
+                <p>2. 运行安装命令：</p>
+                <pre><code class="language-bash">winget install llvm</code></pre>
+                <pre><code>尽量用包管理器，这样会在其他操作系统上也能得到完全一致的安装体验，也最为安全。
+### Ubuntu系统安装
+1. 打开 Bash 终端
+2. 运行安装命令</code></pre>
+                <pre><code class="language-bash">sudo apt install llvm -y</code></pre>
+                <pre><code>注意，要用sudo来以root权限来运行。
+### 验证安装</code></pre>
+                <pre><code class="language-bash">$ clang --version
+clang version 17.0.0
+Target: x86_64-w64-windows-gnu</code></pre>
+                <pre><code>或者</code></pre>
+                <pre><code class="language-bash">$ clang --version
+Apple clang version 21.0.0 (clang-2100.0.123.102)
+Target: arm64-apple-darwin25.4.0
+Thread model: posix
+InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin</code></pre>
+                <pre><code>思考一个问题，是不是版本号越高越好？</code></pre>
+            </section>
+
+            <section>
+                <h2>1.5 第一个C程序：Hello World</h2>
+                <pre><code class="language-c">#include <stdio.h>
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}</code></pre>
+                <pre><code>**代码解析**：
+- `#include <stdio.h>` - 包含标准输入输出库
+- `int main()` - 程序入口函数
+- `printf()` - 输出函数
+- `return 0` - 返回0表示正常结束
+始终记住：一切从主函数开始，也从主函数结束
+##### 新手常见错误：中文标点，遗漏符号，拼写错误等等。
+怎么办？将代码，以及运行时候的错误提示，以文本形式复制给AI开发助手，比如OpenLaoKe来询问和定位错误位置，并尝试修复。</code></pre>
+            </section>
+
+            <section>
+                <h2>1.6 编译过程四阶段</h2>
+                <table>
+                    <tr><th>阶段</th><th>命令</th><th>输入</th><th>输出</th><th>主要工作</th></tr>
+                    <tr><td>**预处理**</td><td>`clang -E`</td><td>`.c`</td><td>`.i`</td><td>宏展开、头文件包含</td></tr>
+                    <tr><td>**编译**</td><td>`clang -S`</td><td>`.i`</td><td>`.s`</td><td>C代码转汇编</td></tr>
+                    <tr><td>**汇编**</td><td>`clang -c`</td><td>`.s`</td><td>`.o`</td><td>汇编转机器码</td></tr>
+                    <tr><td>**链接**</td><td>`clang`</td><td>`.o`</td><td>`.exe`</td><td>链接系统库</td></tr>
+                </table>
+                <p>但是实际上，真正的开发场景中，大家往往就 <strong>一步完成</strong>：</p>
+                <pre><code class="language-bash">$ clang hello.c -o hello.exe</code></pre>
+                <pre><code>大家不需要去背诵和记忆这些过程，而是想明白并且理解这个过程，
+能把这个过程想明白，从结构上清晰理解了，就可以了。
+我们要发展和培养的是理解流程并且复用于其他场景的能力，而不是某一个等级考试的题目解答之类的。创造力和想象力更重要，记忆力的考核不那么重要了。</code></pre>
+            </section>
+
+            <section>
+                <h2>1.7 常用编译选项</h2>
+                <table>
+                    <tr><th>选项</th><th>说明</th></tr>
+                    <tr><td>`-o name`</td><td>指定输出文件名</td></tr>
+                    <tr><td>`-Wall`</td><td>开启所有警告</td></tr>
+                    <tr><td>`-Wextra`</td><td>开启额外警告</td></tr>
+                    <tr><td>`-g`</td><td>生成调试信息</td></tr>
+                    <tr><td>`-lm`</td><td>使用 `math.h` 库</td></tr>
+                    <tr><td>`-O2`</td><td>优化级别2</td></tr>
+                    <tr><td>`-std=c17`</td><td>使用C17标准</td></tr>
+                </table>
+                <p><strong>推荐命令</strong>：</p>
+                <pre><code class="language-bash">$ clang hello.c -o hello -Wall -Wextra -g -lm</code></pre>
+                <pre><code>这些细致的选项都不要去记，只要理解了，知道有这回事就可以了。
+以后用的时候，随时让AI辅助编程助手来帮你翻译一下即可。</code></pre>
+            </section>
+
+            <section>
+                <h2>1.8 本章小结</h2>
+                <p>1. <strong>编译器选择</strong>：GCC/Clang/LLVM，现代化工具链</p>
+                <p>2. <strong>编译流程</strong>：预处理 → 编译 → 汇编 → 链接</p>
+                <p>3. <strong>Hello World</strong>：<code>#include</code>、<code>main()</code>、<code>printf()</code></p>
+                <p>4. <strong>编译命令</strong>：<code>clang file.c -o output</code></p>
+                <p><strong>课后探索与延伸</strong>：</p>
+                <ul>
+                    <li>安装GCC编译器，与Clang对比，再体验一下 Trae 编辑器</li>
+                    <li>编写并运行Hello World程序，在不同操作系统上对比</li>
+                    <li>尝试分步编译（-E、-S、-c）</li>
+                    <li>安装并尝试使用 open code或者 openlaoke，辅助开发</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+    <script src="lib/js/reveal.min.js"></script>
+    <script src="lib/js/mermaid.min.js"></script>
+    <script src="lib/js/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: 'c/t',
+            progress: true,
+            controls: true,
+            width: 1920,
+            height: 1080,
+            margin: 0.08
+        });
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
