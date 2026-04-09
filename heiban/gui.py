@@ -115,6 +115,11 @@ class MainWindow(QMainWindow):
         self.preview_btn.setEnabled(False)
         bottom_layout.addWidget(self.preview_btn)
 
+        self.pdf_btn = QPushButton("导出PDF")
+        self.pdf_btn.clicked.connect(self.export_pdf)
+        self.pdf_btn.setEnabled(False)
+        bottom_layout.addWidget(self.pdf_btn)
+
         bottom_layout.addStretch()
 
         self.progress_bar = QProgressBar()
@@ -258,6 +263,7 @@ flowchart LR
         self.convert_btn.setEnabled(has_content)
         self.save_btn.setEnabled(has_content)
         self.preview_btn.setEnabled(has_content)
+        self.pdf_btn.setEnabled(has_content)
 
     def open_file(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -334,6 +340,47 @@ flowchart LR
             f.write(html)
 
         webbrowser.open(f"file://{temp_html}")
+
+    def export_pdf(self):
+        md_content = self.md_textedit.toPlainText()
+        if not md_content.strip():
+            return
+
+        path, _ = QFileDialog.getSaveFileName(
+            self, "保存PDF文件", "", "PDF Files (*.pdf);;All Files (*)"
+        )
+
+        if not path:
+            return
+
+        try:
+            html = self.converter.generate_html(md_content, "幻灯片", use_cdn=False)
+
+            print_html = html.replace("<!DOCTYPE html>", "<!DOCTYPE html>\n<!-- PDF Print Mode -->")
+
+            print_html = print_html.replace(
+                "Reveal.initialize({",
+                "Reveal.initialize({ hash: false, embedded: true, printWidth: 1200,",
+            )
+
+            self.temp_dir = tempfile.mkdtemp()
+            temp_html = os.path.join(self.temp_dir, "print.html")
+
+            with open(temp_html, "w", encoding="utf-8") as f:
+                f.write(print_html)
+
+            msg = QMessageBox(self)
+            msg.setWindowTitle("导出PDF")
+            msg.setText(
+                "PDF导出方法：\n\n1. 浏览器将打开幻灯片\n2. 按 Cmd+P (Mac) 或 Ctrl+P (Windows)\n3. 选择'保存为PDF'\n4. 在打印设置中选择'纵向'\n5. 勾选'背景图形'选项"
+            )
+            msg.addButton("打开浏览器", QMessageBox.AcceptRole)
+            msg.addButton("取消", QMessageBox.RejectRole)
+
+            if msg.exec() == QMessageBox.AcceptRole:
+                webbrowser.open(f"file://{temp_html}?print-pdf")
+        except Exception as e:
+            QMessageBox.critical(self, "错误", f"导出失败：{e}")
 
     def closeEvent(self, event):
         """关闭窗口时清理"""
