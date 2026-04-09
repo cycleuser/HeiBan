@@ -104,8 +104,7 @@ flowchart LR
 ```
 """
         result = self.converter.generate_html(md, "测试")
-        assert 'class="mermaid"' in result
-        assert "flowchart LR" in result
+        assert "<svg" in result or 'class="mermaid-svg"' in result
 
     def test_custom_size(self):
         """测试自定义尺寸"""

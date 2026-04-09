@@ -5,6 +5,8 @@ Markdown转幻灯片转换器
 """
 
 import re
+import subprocess
+import tempfile
 from pathlib import Path
 from typing import List, Tuple, Optional
 
@@ -141,7 +143,7 @@ class MarkdownToSlideConverter:
         return "", i
 
     def convert_mermaid(self, lines: List[str], start_idx: int) -> Tuple[str, int]:
-        """转换mermaid图表"""
+        """转换mermaid图表为SVG"""
         mermaid_lines = []
         i = start_idx + 1
         while i < len(lines):
@@ -150,10 +152,45 @@ class MarkdownToSlideConverter:
             mermaid_lines.append(lines[i])
             i += 1
 
-        return (
-            f'                <div class="mermaid">\n{"\\n".join(mermaid_lines)}\n                </div>',
-            i,
-        )
+        mermaid_code = "\n".join(mermaid_lines)
+        svg_content = self._render_mermaid_to_svg(mermaid_code)
+
+        if svg_content:
+            return (f'                <div class="mermaid-svg">{svg_content}</div>', i)
+        else:
+            return (
+                f'                <pre><code class="language-mermaid">{mermaid_code}</code></pre>',
+                i,
+            )
+
+    def _render_mermaid_to_svg(self, mermaid_code: str) -> Optional[str]:
+        """使用mmdc渲染mermaid为SVG"""
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".mmd", delete=False) as f:
+                f.write(mermaid_code)
+                mmd_file = f.name
+
+            svg_file = mmd_file.replace(".mmd", ".svg")
+
+            theme = "dark" if self.code_theme == "dark" else "default"
+            result = subprocess.run(
+                ["mmdc", "-i", mmd_file, "-o", svg_file, "-t", theme, "-b", "transparent"],
+                capture_output=True,
+                timeout=10,
+            )
+
+            if result.returncode == 0 and Path(svg_file).exists():
+                with open(svg_file, "r") as f:
+                    svg = f.read()
+                Path(mmd_file).unlink()
+                Path(svg_file).unlink()
+                return svg
+            else:
+                Path(mmd_file).unlink(missing_ok=True)
+                Path(svg_file).unlink(missing_ok=True)
+                return None
+        except Exception:
+            return None
 
     def convert_inline_code(self, text: str) -> str:
         """转换行内代码"""
@@ -283,14 +320,13 @@ class MarkdownToSlideConverter:
         auto_render_js = _LIBS.get("auto-render.min.js", "")
 
         is_dark = self.code_theme == "dark"
-        mermaid_theme = "dark" if is_dark else "default"
 
         if is_dark:
             hljs_css = """
 /* GitHub Dark Theme - Dark Mode */
 .hljs {
-    color: #c9d1d9;
-    background: #0d1117;
+    color: #e1e4e8;
+    background: #1a1a1a;
 }
 .hljs-doctag,
 .hljs-keyword,
@@ -299,13 +335,13 @@ class MarkdownToSlideConverter:
 .hljs-template-variable,
 .hljs-type,
 .hljs-variable.language_ {
-    color: #ff7b72;
+    color: #f97583;
 }
 .hljs-title,
 .hljs-title.class_,
 .hljs-title.class_.inherited__,
 .hljs-title.function_ {
-    color: #d2a8ff;
+    color: #b392f0;
 }
 .hljs-attr,
 .hljs-attribute,
@@ -317,53 +353,53 @@ class MarkdownToSlideConverter:
 .hljs-selector-attr,
 .hljs-selector-class,
 .hljs-selector-id {
-    color: #79c0ff;
+    color: #79b8ff;
 }
 .hljs-regexp,
 .hljs-meta .hljs-string,
 .hljs-string {
-    color: #a5d6ff;
+    color: #9ecbff;
 }
 .hljs-built_in,
 .hljs-symbol {
-    color: #ffa657;
+    color: #ffab70;
 }
 .hljs-comment,
 .hljs-code,
 .hljs-formula {
-    color: #8b949e;
+    color: #6a737d;
 }
 .hljs-name,
 .hljs-quote,
 .hljs-selector-tag,
 .hljs-selector-pseudo {
-    color: #7ee787;
+    color: #85e89d;
 }
 .hljs-subst {
-    color: #c9d1d9;
+    color: #e1e4e8;
 }
 .hljs-section {
-    color: #1f6feb;
+    color: #79b8ff;
     font-weight: bold;
 }
 .hljs-bullet {
-    color: #f2cc60;
+    color: #ffea7f;
 }
 .hljs-emphasis {
-    color: #c9d1d9;
+    color: #e1e4e8;
     font-style: italic;
 }
 .hljs-strong {
-    color: #c9d1d9;
+    color: #e1e4e8;
     font-weight: bold;
 }
 .hljs-addition {
-    color: #aff5b4;
-    background-color: #033a16;
+    color: #bef5cb;
+    background-color: #144620;
 }
 .hljs-deletion {
-    color: #ffdcd7;
-    background-color: #67060c;
+    color: #fdb8c0;
+    background-color: #5a1e1e;
 }
 .hljs-char.escape_,
 .hljs-link,
@@ -371,7 +407,7 @@ class MarkdownToSlideConverter:
 .hljs-property,
 .hljs-punctuation,
 .hljs-tag {
-    color: #c9d1d9;
+    color: #e1e4e8;
 }
 """
         else:
@@ -464,12 +500,19 @@ class MarkdownToSlideConverter:
 }
 """
 
-        page_bg = "#0d1117" if is_dark else "#ffffff"
-        page_text = "#c9d1d9" if is_dark else "#24292e"
-        page_heading = "#58a6ff" if is_dark else "#005cc5"
-        pre_bg = "#0d1117" if is_dark else "#f6f8fa"
-        table_border = "#30363d" if is_dark else "#d0d7de"
-        table_even = "#161b22" if is_dark else "#f6f8fa"
+        page_bg = "#000000" if is_dark else "#ffffff"
+        page_text = "#f0f0f0" if is_dark else "#24292e"
+        page_heading = "#4da6ff" if is_dark else "#005cc5"
+        pre_bg = "#1a1a1a" if is_dark else "#f6f8fa"
+        inline_code_bg = "#2d2d2d" if is_dark else "#e6f3ff"
+        inline_code_text = "#ffcc66" if is_dark else "#d73a49"
+        table_border = "#333333" if is_dark else "#d1d9e0"
+        table_bg = "#1a1a1a" if is_dark else "#ffffff"
+        table_even = "#0d0d0d" if is_dark else "#f6f8fa"
+        table_th_bg = "#1a1a1a" if is_dark else "#005cc5"
+        table_th_text = "#ffffff" if is_dark else "#ffffff"
+        table_td_text = "#f0f0f0" if is_dark else "#24292e"
+        mermaid_theme = "dark" if is_dark else "default"
 
         html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
@@ -480,10 +523,21 @@ class MarkdownToSlideConverter:
     <style>
 {reveal_css}
 
-/* Page Theme */
+/* Page Theme - Override reveal defaults */
 body {{
-    background: {page_bg};
-    color: {page_text};
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+.reveal-viewport {{
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+.reveal {{
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+html {{
+    background: {page_bg} !important;
 }}
 
 {hljs_css}
@@ -516,10 +570,12 @@ body {{
     margin: 0.3em 0;
 }}
 .reveal code {{
-    background: {pre_bg};
+    background: {inline_code_bg};
+    color: {inline_code_text};
     padding: 0.1em 0.3em;
     border-radius: 3px;
     font-size: 0.9em;
+    font-weight: 500;
 }}
 .reveal pre {{
     width: 100%;
@@ -537,23 +593,27 @@ body {{
     line-height: 1.5;
     text-align: left;
     display: block;
+    color: {page_text};
+    background: transparent;
 }}
 .reveal table {{
     width: 100%;
     border-collapse: collapse;
     font-size: 0.8em;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    background: {table_bg};
 }}
 .reveal table th {{
-    background: {page_heading};
-    color: {page_bg};
+    background: {table_th_bg};
+    color: {table_th_text};
     padding: 0.5em;
     font-weight: bold;
+    border: 1px solid {table_border};
 }}
 .reveal table td {{
     padding: 0.4em 0.6em;
-    border-bottom: 1px solid {table_border};
-    color: {page_text};
+    border: 1px solid {table_border};
+    color: {table_td_text};
 }}
 .reveal table tr:nth-child(even) {{
     background: {table_even};

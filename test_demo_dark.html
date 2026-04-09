@@ -22,15 +22,15 @@
 
 /* Page Theme */
 body {
-    background: #0d1117;
-    color: #c9d1d9;
+    background: #000000;
+    color: #f0f0f0;
 }
 
 
 /* GitHub Dark Theme - Dark Mode */
 .hljs {
-    color: #c9d1d9;
-    background: #0d1117;
+    color: #e1e4e8;
+    background: #1a1a1a;
 }
 .hljs-doctag,
 .hljs-keyword,
@@ -39,13 +39,13 @@ body {
 .hljs-template-variable,
 .hljs-type,
 .hljs-variable.language_ {
-    color: #ff7b72;
+    color: #f97583;
 }
 .hljs-title,
 .hljs-title.class_,
 .hljs-title.class_.inherited__,
 .hljs-title.function_ {
-    color: #d2a8ff;
+    color: #b392f0;
 }
 .hljs-attr,
 .hljs-attribute,
@@ -57,53 +57,53 @@ body {
 .hljs-selector-attr,
 .hljs-selector-class,
 .hljs-selector-id {
-    color: #79c0ff;
+    color: #79b8ff;
 }
 .hljs-regexp,
 .hljs-meta .hljs-string,
 .hljs-string {
-    color: #a5d6ff;
+    color: #9ecbff;
 }
 .hljs-built_in,
 .hljs-symbol {
-    color: #ffa657;
+    color: #ffab70;
 }
 .hljs-comment,
 .hljs-code,
 .hljs-formula {
-    color: #8b949e;
+    color: #6a737d;
 }
 .hljs-name,
 .hljs-quote,
 .hljs-selector-tag,
 .hljs-selector-pseudo {
-    color: #7ee787;
+    color: #85e89d;
 }
 .hljs-subst {
-    color: #c9d1d9;
+    color: #e1e4e8;
 }
 .hljs-section {
-    color: #1f6feb;
+    color: #79b8ff;
     font-weight: bold;
 }
 .hljs-bullet {
-    color: #f2cc60;
+    color: #ffea7f;
 }
 .hljs-emphasis {
-    color: #c9d1d9;
+    color: #e1e4e8;
     font-style: italic;
 }
 .hljs-strong {
-    color: #c9d1d9;
+    color: #e1e4e8;
     font-weight: bold;
 }
 .hljs-addition {
-    color: #aff5b4;
-    background-color: #033a16;
+    color: #bef5cb;
+    background-color: #144620;
 }
 .hljs-deletion {
-    color: #ffdcd7;
-    background-color: #67060c;
+    color: #fdb8c0;
+    background-color: #5a1e1e;
 }
 .hljs-char.escape_,
 .hljs-link,
@@ -111,7 +111,7 @@ body {
 .hljs-property,
 .hljs-punctuation,
 .hljs-tag {
-    color: #c9d1d9;
+    color: #e1e4e8;
 }
 
 
@@ -121,17 +121,17 @@ body {
 }
 .reveal h1 {
     font-size: 2.2em;
-    color: #58a6ff;
+    color: #4da6ff;
     margin-bottom: 0.4em;
 }
 .reveal h2 {
     font-size: 1.6em;
-    color: #58a6ff;
+    color: #4da6ff;
     margin-bottom: 0.4em;
 }
 .reveal h3 {
     font-size: 1.2em;
-    color: #58a6ff;
+    color: #4da6ff;
     opacity: 0.85;
 }
 .reveal ul, .reveal ol {
@@ -143,16 +143,18 @@ body {
     margin: 0.3em 0;
 }
 .reveal code {
-    background: #0d1117;
+    background: #2d2d2d;
+    color: #ffcc66;
     padding: 0.1em 0.3em;
     border-radius: 3px;
     font-size: 0.9em;
+    font-weight: 500;
 }
 .reveal pre {
     width: 100%;
     font-size: 0.65em;
     margin: 0.5em 0;
-    background: #0d1117;
+    background: #1a1a1a;
     border-radius: 8px;
     overflow: auto;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
@@ -164,26 +166,30 @@ body {
     line-height: 1.5;
     text-align: left;
     display: block;
+    color: #f0f0f0;
+    background: transparent;
 }
 .reveal table {
     width: 100%;
     border-collapse: collapse;
     font-size: 0.8em;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    background: #1a1a1a;
 }
 .reveal table th {
-    background: #58a6ff;
-    color: #0d1117;
+    background: #1a1a1a;
+    color: #ffffff;
     padding: 0.5em;
     font-weight: bold;
+    border: 1px solid #333333;
 }
 .reveal table td {
     padding: 0.4em 0.6em;
-    border-bottom: 1px solid #30363d;
-    color: #c9d1d9;
+    border: 1px solid #333333;
+    color: #f0f0f0;
 }
 .reveal table tr:nth-child(even) {
-    background: #161b22;
+    background: #0d0d0d;
 }
 .columns {
     display: flex;
@@ -258,16 +264,12 @@ int main() {
             <section>
                 <h2>流程图测试</h2>
                 <h3>程序编译流程</h3>
-                <div class="mermaid">
-flowchart LR\n    A[源代码] --> B[预处理器]\n    B --> C[编译器]\n    C --> D[汇编器]\n    D --> E[链接器]\n    E --> F[可执行文件]
-                </div>
+                <div class="mermaid-svg"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 962px; background-color: transparent;" viewBox="0 0 962 70" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#ccc;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#a44141;}#my-svg .error-text{fill:#ddd;stroke:#ddd;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:lightgrey;stroke:lightgrey;}#my-svg .marker.cross{stroke:lightgrey;}#my-svg svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#my-svg p{margin:0;}#my-svg .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#ccc;}#my-svg .cluster-label text{fill:#F9FFFE;}#my-svg .cluster-label span{color:#F9FFFE;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#ccc;color:#ccc;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#1f2020;stroke:#ccc;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:lightgrey!important;stroke-width:0;stroke:lightgrey;}#my-svg .arrowheadPath{fill:lightgrey;}#my-svg .edgePath .path{stroke:lightgrey;stroke-width:1px;}#my-svg .flowchart-link{stroke:lightgrey;fill:none;}#my-svg .edgeLabel{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#my-svg .edgeLabel p{background-color:hsl(0, 0%, 34.4117647059%);}#my-svg .edgeLabel rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#my-svg .labelBkg{background-color:rgba(87.75, 87.75, 87.75, 0.5);}#my-svg .cluster rect{fill:hsl(180, 1.5873015873%, 28.3529411765%);stroke:rgba(255, 255, 255, 0.25);stroke-width:1px;}#my-svg .cluster text{fill:#F9FFFE;}#my-svg .cluster span{color:#F9FFFE;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(20, 1.5873015873%, 12.3529411765%);border:1px solid rgba(255, 255, 255, 0.25);border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#ccc;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:hsl(0, 0%, 34.4117647059%);padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#ccc;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#ccc;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"/><g class="edgePaths"><path d="M116,35L120.167,35C124.333,35,132.667,35,140.333,35C148,35,155,35,158.5,35L162,35" id="my-svg-L_A_B_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_A_B_0" data-points="W3sieCI6MTE2LCJ5IjozNX0seyJ4IjoxNDEsInkiOjM1fSx7IngiOjE2NiwieSI6MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M290,35L294.167,35C298.333,35,306.667,35,314.333,35C322,35,329,35,332.5,35L336,35" id="my-svg-L_B_C_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_B_C_0" data-points="W3sieCI6MjkwLCJ5IjozNX0seyJ4IjozMTUsInkiOjM1fSx7IngiOjM0MCwieSI6MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M448,35L452.167,35C456.333,35,464.667,35,472.333,35C480,35,487,35,490.5,35L494,35" id="my-svg-L_C_D_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_C_D_0" data-points="W3sieCI6NDQ4LCJ5IjozNX0seyJ4Ijo0NzMsInkiOjM1fSx7IngiOjQ5OCwieSI6MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M606,35L610.167,35C614.333,35,622.667,35,630.333,35C638,35,645,35,648.5,35L652,35" id="my-svg-L_D_E_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_D_E_0" data-points="W3sieCI6NjA2LCJ5IjozNX0seyJ4Ijo2MzEsInkiOjM1fSx7IngiOjY1NiwieSI6MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M764,35L768.167,35C772.333,35,780.667,35,788.333,35C796,35,803,35,806.5,35L810,35" id="my-svg-L_E_F_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_E_F_0" data-points="W3sieCI6NzY0LCJ5IjozNX0seyJ4Ijo3ODksInkiOjM1fSx7IngiOjgxNCwieSI6MzV9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_A_B_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_B_C_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_C_D_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_D_E_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel"><g class="label" data-id="L_E_F_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="my-svg-flowchart-A-0" data-look="classic" transform="translate(62, 35)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>源代码</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-B-1" data-look="classic" transform="translate(228, 35)"><rect class="basic label-container" style="" x="-62" y="-27" width="124" height="54"/><g class="label" style="" transform="translate(-32, -12)"><rect/><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>预处理器</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-C-3" data-look="classic" transform="translate(394, 35)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>编译器</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-D-5" data-look="classic" transform="translate(552, 35)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>汇编器</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-E-7" data-look="classic" transform="translate(710, 35)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>链接器</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-F-9" data-look="classic" transform="translate(884, 35)"><rect class="basic label-container" style="" x="-70" y="-27" width="140" height="54"/><g class="label" style="" transform="translate(-40, -12)"><rect/><foreignObject width="80" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>可执行文件</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#FFFFFF"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#FFFFFF"/></filter></defs><linearGradient id="my-svg-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cccccc" stop-opacity="1"/><stop offset="100%" stop-color="hsl(180, 0%, 18.3529411765%)" stop-opacity="1"/></linearGradient></svg></div>
 
             </section>
             <section>
                 <h3>数据结构选择</h3>
-                <div class="mermaid">
-flowchart TD\n    Start[需要存储数据] --> Question{数据特点}\n    Question -->|快速查找| Hash[哈希表]\n    Question -->|有序存储| Tree[平衡树]\n    Question -->|频繁插入删除| List[链表]\n    Question -->|随机访问| Array[数组]
-                </div>
+                <div class="mermaid-svg"><svg id="my-svg" width="100%" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="flowchart" style="max-width: 566px; background-color: transparent;" viewBox="0 0 566 366" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#my-svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;fill:#ccc;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#my-svg .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#my-svg .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#my-svg .error-icon{fill:#a44141;}#my-svg .error-text{fill:#ddd;stroke:#ddd;}#my-svg .edge-thickness-normal{stroke-width:1px;}#my-svg .edge-thickness-thick{stroke-width:3.5px;}#my-svg .edge-pattern-solid{stroke-dasharray:0;}#my-svg .edge-thickness-invisible{stroke-width:0;fill:none;}#my-svg .edge-pattern-dashed{stroke-dasharray:3;}#my-svg .edge-pattern-dotted{stroke-dasharray:2;}#my-svg .marker{fill:lightgrey;stroke:lightgrey;}#my-svg .marker.cross{stroke:lightgrey;}#my-svg svg{font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:16px;}#my-svg p{margin:0;}#my-svg .label{font-family:"trebuchet ms",verdana,arial,sans-serif;color:#ccc;}#my-svg .cluster-label text{fill:#F9FFFE;}#my-svg .cluster-label span{color:#F9FFFE;}#my-svg .cluster-label span p{background-color:transparent;}#my-svg .label text,#my-svg span{fill:#ccc;color:#ccc;}#my-svg .node rect,#my-svg .node circle,#my-svg .node ellipse,#my-svg .node polygon,#my-svg .node path{fill:#1f2020;stroke:#ccc;stroke-width:1px;}#my-svg .rough-node .label text,#my-svg .node .label text,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-anchor:middle;}#my-svg .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#my-svg .rough-node .label,#my-svg .node .label,#my-svg .image-shape .label,#my-svg .icon-shape .label{text-align:center;}#my-svg .node.clickable{cursor:pointer;}#my-svg .root .anchor path{fill:lightgrey!important;stroke-width:0;stroke:lightgrey;}#my-svg .arrowheadPath{fill:lightgrey;}#my-svg .edgePath .path{stroke:lightgrey;stroke-width:1px;}#my-svg .flowchart-link{stroke:lightgrey;fill:none;}#my-svg .edgeLabel{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#my-svg .edgeLabel p{background-color:hsl(0, 0%, 34.4117647059%);}#my-svg .edgeLabel rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#my-svg .labelBkg{background-color:rgba(87.75, 87.75, 87.75, 0.5);}#my-svg .cluster rect{fill:hsl(180, 1.5873015873%, 28.3529411765%);stroke:rgba(255, 255, 255, 0.25);stroke-width:1px;}#my-svg .cluster text{fill:#F9FFFE;}#my-svg .cluster span{color:#F9FFFE;}#my-svg div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:"trebuchet ms",verdana,arial,sans-serif;font-size:12px;background:hsl(20, 1.5873015873%, 12.3529411765%);border:1px solid rgba(255, 255, 255, 0.25);border-radius:2px;pointer-events:none;z-index:100;}#my-svg .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#ccc;}#my-svg rect.text{fill:none;stroke-width:0;}#my-svg .icon-shape,#my-svg .image-shape{background-color:hsl(0, 0%, 34.4117647059%);text-align:center;}#my-svg .icon-shape p,#my-svg .image-shape p{background-color:hsl(0, 0%, 34.4117647059%);padding:2px;}#my-svg .icon-shape .label rect,#my-svg .image-shape .label rect{opacity:0.5;background-color:hsl(0, 0%, 34.4117647059%);fill:hsl(0, 0%, 34.4117647059%);}#my-svg .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#my-svg .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#my-svg .node .neo-node{stroke:#ccc;}#my-svg [data-look="neo"].node rect,#my-svg [data-look="neo"].cluster rect,#my-svg [data-look="neo"].node polygon{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node path{stroke:url(#my-svg-gradient);stroke-width:1px;}#my-svg [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node .neo-line path{stroke:#ccc;filter:none;}#my-svg [data-look="neo"].node circle{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].node circle .state-start{fill:#000000;}#my-svg [data-look="neo"].icon-shape .icon{fill:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg [data-look="neo"].icon-shape .icon-neo path{stroke:url(#my-svg-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#my-svg :root{--mermaid-font-family:"trebuchet ms",verdana,arial,sans-serif;}</style><g><marker id="my-svg_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"/></marker><marker id="my-svg_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"/></marker><marker id="my-svg_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"/></marker><g class="root"><g class="clusters"/><g class="edgePaths"><path d="M295,62L295,66.167C295,70.333,295,78.667,295,86.333C295,94,295,101,295,104.5L295,108" id="my-svg-L_Start_Question_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Start_Question_0" data-points="W3sieCI6Mjk1LCJ5Ijo2Mn0seyJ4IjoyOTUsInkiOjg3fSx7IngiOjI5NSwieSI6MTEyfV0=" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M253.216,188.216L221.347,201.347C189.477,214.477,125.739,240.739,93.869,259.369C62,278,62,289,62,294.5L62,300" id="my-svg-L_Question_Hash_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Question_Hash_0" data-points="W3sieCI6MjUzLjIxNTgwNTQ3MTEyNDYsInkiOjE4OC4yMTU4MDU0NzExMjQ2fSx7IngiOjYyLCJ5IjoyNjd9LHsieCI6NjIsInkiOjMwNH1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M269.123,204.123L260.936,214.602C252.749,225.082,236.374,246.041,228.187,262.02C220,278,220,289,220,294.5L220,300" id="my-svg-L_Question_Tree_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Question_Tree_0" data-points="W3sieCI6MjY5LjEyMjgwNzAxNzU0MzgzLCJ5IjoyMDQuMTIyODA3MDE3NTQzODZ9LHsieCI6MjIwLCJ5IjoyNjd9LHsieCI6MjIwLCJ5IjozMDR9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M320.877,204.123L329.064,214.602C337.251,225.082,353.626,246.041,361.813,262.02C370,278,370,289,370,294.5L370,300" id="my-svg-L_Question_List_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Question_List_0" data-points="W3sieCI6MzIwLjg3NzE5Mjk4MjQ1NjE3LCJ5IjoyMDQuMTIyODA3MDE3NTQzODZ9LHsieCI6MzcwLCJ5IjoyNjd9LHsieCI6MzcwLCJ5IjozMDR9XQ==" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/><path d="M335.904,189.096L365.253,202.08C394.603,215.064,453.301,241.032,482.651,259.516C512,278,512,289,512,294.5L512,300" id="my-svg-L_Question_Array_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_Question_Array_0" data-points="W3sieCI6MzM1LjkwNDE1MzM1NDYzMjU3LCJ5IjoxODkuMDk1ODQ2NjQ1MzY3NH0seyJ4Ijo1MTIsInkiOjI2N30seyJ4Ijo1MTIsInkiOjMwNH1d" data-look="classic" marker-end="url(#my-svg_flowchart-v2-pointEnd)"/></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_Start_Question_0" transform="translate(0, 0)"><foreignObject width="0" height="0"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(62, 267)"><g class="label" data-id="L_Question_Hash_0" transform="translate(-32, -12)"><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>快速查找</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(220, 267)"><g class="label" data-id="L_Question_Tree_0" transform="translate(-32, -12)"><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>有序存储</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(370, 267)"><g class="label" data-id="L_Question_List_0" transform="translate(-48, -12)"><foreignObject width="96" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>频繁插入删除</p></span></div></foreignObject></g></g><g class="edgeLabel" transform="translate(512, 267)"><g class="label" data-id="L_Question_Array_0" transform="translate(-32, -12)"><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" class="labelBkg" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="edgeLabel"><p>随机访问</p></span></div></foreignObject></g></g></g><g class="nodes"><g class="node default" id="my-svg-flowchart-Start-0" data-look="classic" transform="translate(295, 35)"><rect class="basic label-container" style="" x="-78" y="-27" width="156" height="54"/><g class="label" style="" transform="translate(-48, -12)"><rect/><foreignObject width="96" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>需要存储数据</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-Question-1" data-look="classic" transform="translate(295, 171)"><polygon points="59,0 118,-59 59,-118 0,-59" class="label-container" transform="translate(-58.5, 59)"/><g class="label" style="" transform="translate(-32, -12)"><rect/><foreignObject width="64" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>数据特点</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-Hash-3" data-look="classic" transform="translate(62, 331)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>哈希表</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-Tree-5" data-look="classic" transform="translate(220, 331)"><rect class="basic label-container" style="" x="-54" y="-27" width="108" height="54"/><g class="label" style="" transform="translate(-24, -12)"><rect/><foreignObject width="48" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>平衡树</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-List-7" data-look="classic" transform="translate(370, 331)"><rect class="basic label-container" style="" x="-46" y="-27" width="92" height="54"/><g class="label" style="" transform="translate(-16, -12)"><rect/><foreignObject width="32" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>链表</p></span></div></foreignObject></g></g><g class="node default" id="my-svg-flowchart-Array-9" data-look="classic" transform="translate(512, 331)"><rect class="basic label-container" style="" x="-46" y="-27" width="92" height="54"/><g class="label" style="" transform="translate(-16, -12)"><rect/><foreignObject width="32" height="24"><div xmlns="http://www.w3.org/1999/xhtml" style="display: table-cell; white-space: nowrap; line-height: 1.5; max-width: 200px; text-align: center;"><span class="nodeLabel"><p>数组</p></span></div></foreignObject></g></g></g></g></g><defs><filter id="my-svg-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#FFFFFF"/></filter></defs><defs><filter id="my-svg-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#FFFFFF"/></filter></defs><linearGradient id="my-svg-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cccccc" stop-opacity="1"/><stop offset="100%" stop-color="hsl(180, 0%, 18.3529411765%)" stop-opacity="1"/></linearGradient></svg></div>
 
             </section>
             <section>
@@ -315,9 +317,14 @@ flowchart TD\n    Start[需要存储数据] --> Question{数据特点}\n    Ques
             <section>
                 <h2>综合示例</h2>
                 <h3>算法复杂度对比</h3>
-                <div class="mermaid">
-flowchart TB\n    subgraph "时间复杂度"\n        O1[O(1) - 常数] --> Ologn[O(log n) - 对数]\n        Ologn --> On[O(n) - 线性]\n        On --> Onlogn[O(n log n)]\n        Onlogn --> On2[O(n²) - 平方]\n        On2 --> O2n[O(2^n) - 指数]\n    end
-                </div>
+                <pre><code class="language-mermaid">flowchart TB
+    subgraph "时间复杂度"
+        O1[O(1) - 常数] --> Ologn[O(log n) - 对数]
+        Ologn --> On[O(n) - 线性]
+        On --> Onlogn[O(n log n)]
+        Onlogn --> On2[O(n²) - 平方]
+        On2 --> O2n[O(2^n) - 指数]
+    end</code></pre>
                 <pre><code>**空间复杂度公式**：$S(n) = O(n \log n)$
 | 算法 | 时间复杂度 | 空间复杂度 |
 |------|-----------|-----------|
