@@ -31,8 +31,9 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QCheckBox,
 )
-from PySide6.QtCore import Qt, QThread, Signal, QSize
+from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
 from PySide6.QtGui import QFont
+from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .converter import MarkdownToSlideConverter
 
@@ -217,13 +218,8 @@ flowchart LR
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
-        label = QLabel("转换后的HTML代码预览：")
-        layout.addWidget(label)
-
-        self.preview_textedit = QPlainTextEdit()
-        self.preview_textedit.setReadOnly(True)
-        self.preview_textedit.setFont(QFont("Courier New", 9))
-        layout.addWidget(self.preview_textedit)
+        self.web_view = QWebEngineView()
+        layout.addWidget(self.web_view)
 
         return widget
 
@@ -286,16 +282,13 @@ flowchart LR
             QMessageBox.warning(self, "警告", "请先输入内容")
             return
 
-        # 更新预览
         html = self.converter.generate_html(md_content, "幻灯片")
-        self.preview_textedit.setPlainText(html)
+        self.web_view.setHtml(html, QUrl("file:///"))
 
-        # 显示进度
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(30)
         self.progress_bar.setFormat("转换中... %p%")
 
-        # 模拟进度并转换
         self.thread = ConversionThread(self.converter, md_content, "output.html")
         self.thread.progress.connect(self.on_progress)
         self.thread.finished.connect(self.on_conversion_finished)
@@ -319,32 +312,22 @@ flowchart LR
         if not md_content.strip():
             return
 
-        # 生成自包含HTML
         html = self.converter.generate_html(md_content, "预览")
 
-        # 创建临时目录和文件
         self.temp_dir = tempfile.mkdtemp()
         temp_html = os.path.join(self.temp_dir, "preview.html")
 
-        # 写入HTML
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 
-        # 停止之前的服务器
         self._stop_server()
 
-        # 启动HTTP服务器
         self.server_thread = threading.Thread(
             target=self._run_server, args=(self.temp_dir,), daemon=True
         )
         self.server_thread.start()
 
-        # 打开浏览器
         webbrowser.open("http://localhost:8765/preview.html")
-
-        QMessageBox.information(
-            self, "预览", "已在浏览器中打开预览页面\n服务器运行在 http://localhost:8765"
-        )
 
     def _run_server(self, temp_dir: str):
         """运行HTTP服务器"""
