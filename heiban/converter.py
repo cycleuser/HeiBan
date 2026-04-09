@@ -307,9 +307,160 @@ class MarkdownToSlideConverter:
 
         return "\n".join(html_slides)
 
-    def generate_html(self, md_content: str, title: str = "幻灯片") -> str:
-        """生成完整的自包含HTML文件"""
+    def generate_html(self, md_content: str, title: str = "幻灯片", use_cdn: bool = False) -> str:
+        """生成HTML文件，use_cdn=True使用CDN链接减小文件大小"""
         content = self.convert_markdown_to_html(md_content)
+
+        is_dark = self.code_theme == "dark"
+
+        if use_cdn:
+            return self._generate_html_cdn(content, title, is_dark)
+        else:
+            return self._generate_html_embedded(content, title, is_dark)
+
+    def _generate_html_cdn(self, content: str, title: str, is_dark: bool) -> str:
+        """使用CDN链接生成HTML"""
+        page_bg = "#000000" if is_dark else "#ffffff"
+        page_text = "#f0f0f0" if is_dark else "#24292e"
+        page_heading = "#4da6ff" if is_dark else "#005cc5"
+        pre_bg = "#1a1a1a" if is_dark else "#f6f8fa"
+        inline_code_bg = "#2d2d2d" if is_dark else "#e6f3ff"
+        inline_code_text = "#ffcc66" if is_dark else "#d73a49"
+        table_border = "#333333" if is_dark else "#d1d9e0"
+        table_bg = "#1a1a1a" if is_dark else "#ffffff"
+        table_even = "#0d0d0d" if is_dark else "#f6f8fa"
+        table_th_bg = "#1a1a1a" if is_dark else "#005cc5"
+        table_th_text = "#ffffff" if is_dark else "#ffffff"
+        table_td_text = "#f0f0f0" if is_dark else "#24292e"
+        mermaid_theme = "dark" if is_dark else "default"
+
+        html = f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{title}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+body {{
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+.reveal-viewport {{
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+.reveal {{
+    background: {page_bg} !important;
+    color: {page_text} !important;
+}}
+html {{
+    background: {page_bg} !important;
+}}
+.reveal {{
+    font-size: {self.font_size}px;
+}}
+.reveal h1 {{
+    font-size: 2.2em;
+    color: {page_heading};
+    margin-bottom: 0.4em;
+}}
+.reveal h2 {{
+    font-size: 1.6em;
+    color: {page_heading};
+}}
+.reveal h3 {{
+    font-size: 1.2em;
+    color: {page_heading};
+}}
+.reveal ul, .reveal ol {{
+    display: block;
+    text-align: left;
+    margin-left: 1.5em;
+}}
+.reveal li {{
+    margin: 0.3em 0;
+}}
+.reveal code {{
+    background: {inline_code_bg};
+    color: {inline_code_text};
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}}
+.reveal pre {{
+    width: 100%;
+    font-size: 0.65em;
+    margin: 0.5em 0;
+    background: {pre_bg};
+    border-radius: 8px;
+    overflow: auto;
+}}
+.reveal pre code {{
+    padding: 1em;
+    max-height: 600px;
+    line-height: 1.5;
+    display: block;
+    color: {page_text};
+}}
+.reveal table {{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8em;
+    background: {table_bg};
+}}
+.reveal table th {{
+    background: {table_th_bg};
+    color: {table_th_text};
+    padding: 0.5em;
+    border: 1px solid {table_border};
+}}
+.reveal table td {{
+    padding: 0.4em 0.6em;
+    border: 1px solid {table_border};
+    color: {table_td_text};
+}}
+.reveal table tr:nth-child(even) {{
+    background: {table_even};
+}}
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+{content}
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+        Reveal.initialize({{
+            hash: true,
+            slideNumber: 'c/t',
+            progress: true,
+            controls: true,
+            width: {self.width},
+            height: {self.height},
+            margin: 0.08
+        }});
+        mermaid.initialize({{ startOnLoad: true, theme: '{mermaid_theme}', securityLevel: 'loose' }});
+        hljs.highlightAll();
+        renderMathInElement(document.body, {{
+            delimiters: [
+                {{left: '$$', right: '$$', display: true}},
+                {{left: '$', right: '$', display: false}}
+            ]
+        }});
+    </script>
+</body>
+</html>"""
+        return html
+
+    def _generate_html_embedded(self, content: str, title: str, is_dark: bool) -> str:
+        """生成嵌入所有资源的HTML"""
 
         reveal_css = _LIBS.get("reveal.min.css", "")
         reveal_js = _LIBS.get("reveal.min.js", "")
@@ -318,8 +469,6 @@ class MarkdownToSlideConverter:
         katex_css = _LIBS.get("katex.min.css", "")
         katex_js = _LIBS.get("katex.min.js", "")
         auto_render_js = _LIBS.get("auto-render.min.js", "")
-
-        is_dark = self.code_theme == "dark"
 
         if is_dark:
             hljs_css = """
