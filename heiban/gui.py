@@ -8,8 +8,6 @@ import sys
 import tempfile
 import webbrowser
 import shutil
-import threading
-import http.server
 from pathlib import Path
 from typing import Optional
 
@@ -30,9 +28,12 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QPlainTextEdit,
     QCheckBox,
+    QMenuBar,
+    QMenu,
+    QToolBar,
 )
 from PySide6.QtCore import Qt, QThread, Signal, QSize, QUrl
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QAction
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .converter import MarkdownToSlideConverter
@@ -74,7 +75,6 @@ class MainWindow(QMainWindow):
         self.converter = MarkdownToSlideConverter()
         self.current_file: Optional[str] = None
         self.thread: Optional[ConversionThread] = None
-        self.server_thread: Optional[threading.Thread] = None
         self.temp_dir: Optional[str] = None
         self.init_ui()
 
@@ -82,67 +82,18 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("HeiBan - Mermaid转HTML幻灯片")
         self.setMinimumSize(1000, 700)
 
+        self.create_menu_bar()
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
         main_layout = QVBoxLayout(central_widget)
 
-        # 顶部设置区域
-        settings_group = QGroupBox("输出设置")
-        settings_layout = QHBoxLayout()
-
-        # 幻灯片宽高比
-        ratio_layout = QVBoxLayout()
-        ratio_layout.addWidget(QLabel("宽高比"))
-        ratio_combo = QComboBox()
-        ratio_combo.addItems(["16:9 (宽屏)", "4:3 (普屏)", "21:9 (超宽)", "3:2 (标准)"])
-        ratio_combo.currentIndexChanged.connect(self.on_ratio_changed)
-        self.ratio_combo = ratio_combo
-        ratio_layout.addWidget(ratio_combo)
-        settings_layout.addLayout(ratio_layout)
-
-        # 字体大小
-        font_layout = QVBoxLayout()
-        font_layout.addWidget(QLabel("字体大小"))
-        font_spin = QSpinBox()
-        font_spin.setRange(16, 40)
-        font_spin.setValue(26)
-        font_spin.valueChanged.connect(self.on_font_size_changed)
-        self.font_spin = font_spin
-        font_layout.addWidget(font_spin)
-        settings_layout.addLayout(font_layout)
-
-        # Mermaid主题
-        theme_layout = QVBoxLayout()
-        theme_layout.addWidget(QLabel("Mermaid主题"))
-        theme_combo = QComboBox()
-        theme_combo.addItems(["default", "neutral", "dark", "base"])
-        theme_combo.currentIndexChanged.connect(self.on_theme_changed)
-        self.theme_combo = theme_combo
-        theme_layout.addWidget(theme_combo)
-        settings_layout.addLayout(theme_layout)
-
-        # 代码高亮主题
-        code_theme_layout = QVBoxLayout()
-        code_theme_layout.addWidget(QLabel("代码高亮"))
-        code_theme_combo = QComboBox()
-        code_theme_combo.addItems(["dark (暗色)", "light (亮色)"])
-        code_theme_combo.currentIndexChanged.connect(self.on_code_theme_changed)
-        self.code_theme_combo = code_theme_combo
-        code_theme_layout.addWidget(code_theme_combo)
-        settings_layout.addLayout(code_theme_layout)
-
-        settings_layout.addStretch()
-        settings_group.setLayout(settings_layout)
-        main_layout.addWidget(settings_group)
-
-        # Tab区域
         tab_widget = QTabWidget()
         tab_widget.addTab(self.create_input_tab(), "Markdown输入")
         tab_widget.addTab(self.create_preview_tab(), "预览")
         main_layout.addWidget(tab_widget)
 
-        # 底部按钮区域
         bottom_layout = QHBoxLayout()
 
         self.open_btn = QPushButton("打开Markdown文件")
@@ -173,40 +124,92 @@ class MainWindow(QMainWindow):
 
         main_layout.addLayout(bottom_layout)
 
+    def create_menu_bar(self):
+        menubar = self.menuBar()
+
+        file_menu = menubar.addMenu("文件")
+
+        open_action = QAction("打开Markdown", self)
+        open_action.triggered.connect(self.open_file)
+        file_menu.addAction(open_action)
+
+        save_action = QAction("保存HTML", self)
+        save_action.triggered.connect(self.save_file)
+        file_menu.addAction(save_action)
+
+        settings_menu = menubar.addMenu("设置")
+
+        ratio_menu = settings_menu.addMenu("宽高比")
+        ratio_actions = ["16:9 (宽屏)", "4:3 (普屏)", "21:9 (超宽)", "3:2 (标准)"]
+        for action_text in ratio_actions:
+            action = QAction(action_text, self)
+            action.triggered.connect(
+                lambda checked, text=action_text: self.on_ratio_menu_changed(text)
+            )
+            ratio_menu.addAction(action)
+
+        font_menu = settings_menu.addMenu("字体大小")
+        for size in range(16, 41, 2):
+            action = QAction(f"{size}px", self)
+            action.triggered.connect(lambda checked, s=size: self.set_font_size(s))
+            font_menu.addAction(action)
+
+        theme_menu = settings_menu.addMenu("Mermaid主题")
+        themes = ["default", "neutral", "dark", "base"]
+        for theme in themes:
+            action = QAction(theme, self)
+            action.triggered.connect(lambda checked, t=theme: self.set_mermaid_theme(t))
+            theme_menu.addAction(action)
+
+        code_theme_menu = settings_menu.addMenu("代码高亮主题")
+        code_themes = ["dark (暗色)", "light (亮色)"]
+        for code_theme in code_themes:
+            action = QAction(code_theme, self)
+            action.triggered.connect(
+                lambda checked, ct=code_theme: self.set_code_theme(ct.split()[0])
+            )
+            code_theme_menu.addAction(action)
+
+    def on_ratio_menu_changed(self, text: str):
+        ratio = text.split()[0]
+        self.converter.set_aspect_ratio(ratio)
+
+    def set_font_size(self, size: int):
+        self.converter.font_size = size
+
+    def set_mermaid_theme(self, theme: str):
+        self.converter.mermaid_theme = theme
+
+    def set_code_theme(self, theme: str):
+        self.converter.code_theme = theme
+
     def create_input_tab(self) -> QWidget:
-        """创建输入Tab"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
-        label = QLabel(
-            "输入Markdown内容（使用 --- / — / *** 分隔幻灯片，使用 ```mermaid 分隔图表）："
-        )
+        label = QLabel("输入Markdown内容（使用 --- 分隔幻灯片，```mermaid 创建图表）：")
         layout.addWidget(label)
 
         self.md_textedit = QPlainTextEdit()
-        self.md_textedit.setPlaceholderText("""示例格式：
+        self.md_textedit.setPlaceholderText("""# 示例标题
 
-# 第1章 标题
-
-## 第一页内容
+## 第一页
 
 - 列表项1
 - 列表项2
 
-```
-#include <stdio.h>
-int main() { return 0; }
+```python
+print("Hello World")
 ```
 
 ---
 
-## 第二页内容
+## 第二页
 
 ```mermaid
 flowchart LR
     A --> B
 ```
-
 """)
         self.md_textedit.textChanged.connect(self.on_text_changed)
         layout.addWidget(self.md_textedit)
@@ -214,30 +217,41 @@ flowchart LR
         return widget
 
     def create_preview_tab(self) -> QWidget:
-        """创建预览Tab"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
         self.web_view = QWebEngineView()
         layout.addWidget(self.web_view)
 
+        refresh_btn = QPushButton("刷新预览")
+        refresh_btn.clicked.connect(self.refresh_preview)
+        layout.addWidget(refresh_btn)
+
         return widget
 
-    def on_ratio_changed(self, index: int):
-        ratios = ["16:9", "4:3", "21:9", "3:2"]
-        if index < len(ratios):
-            self.converter.set_aspect_ratio(ratios[index])
+    def refresh_preview(self):
+        md_content = self.md_textedit.toPlainText()
+        if not md_content.strip():
+            return
 
-    def on_font_size_changed(self, value: int):
-        self.converter.font_size = value
+        try:
+            html = self.converter.generate_html(md_content, "预览", use_cdn=False)
 
-    def on_theme_changed(self, index: int):
-        themes = ["default", "neutral", "dark", "base"]
-        if index < len(themes):
-            self.converter.mermaid_theme = themes[index]
+            if self.temp_dir:
+                try:
+                    shutil.rmtree(self.temp_dir)
+                except:
+                    pass
 
-    def on_code_theme_changed(self, index: int):
-        self.converter.code_theme = "dark" if index == 0 else "light"
+            self.temp_dir = tempfile.mkdtemp()
+            temp_html = os.path.join(self.temp_dir, "preview.html")
+
+            with open(temp_html, "w", encoding="utf-8") as f:
+                f.write(html)
+
+            self.web_view.setUrl(QUrl.fromLocalFile(temp_html))
+        except Exception as e:
+            QMessageBox.warning(self, "预览错误", f"生成预览失败: {e}")
 
     def on_text_changed(self):
         has_content = bool(self.md_textedit.toPlainText().strip())
@@ -282,8 +296,7 @@ flowchart LR
             QMessageBox.warning(self, "警告", "请先输入内容")
             return
 
-        html = self.converter.generate_html(md_content, "幻灯片")
-        self.web_view.setHtml(html, QUrl("file:///"))
+        self.refresh_preview()
 
         self.progress_bar.setVisible(True)
         self.progress_bar.setValue(30)
@@ -320,39 +333,10 @@ flowchart LR
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 
-        self._stop_server()
-
-        self.server_thread = threading.Thread(
-            target=self._run_server, args=(self.temp_dir,), daemon=True
-        )
-        self.server_thread.start()
-
-        webbrowser.open("http://localhost:8765/preview.html")
-
-    def _run_server(self, temp_dir: str):
-        """运行HTTP服务器"""
-        os.chdir(temp_dir)
-        try:
-            http.server.HTTPServer(
-                ("localhost", 8765), http.server.SimpleHTTPRequestHandler
-            ).serve_forever()
-        except Exception:
-            pass  # 服务器停止时忽略错误
-
-    def _stop_server(self):
-        """停止服务器"""
-        import socket
-
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(("localhost", 8765))
-            sock.close()
-        except Exception:
-            pass
+        webbrowser.open(f"file://{temp_html}")
 
     def closeEvent(self, event):
         """关闭窗口时清理"""
-        self._stop_server()
         if self.temp_dir and os.path.exists(self.temp_dir):
             try:
                 shutil.rmtree(self.temp_dir)

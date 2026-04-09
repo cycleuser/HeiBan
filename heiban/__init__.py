@@ -3,7 +3,7 @@ HeiBan - Mermaid转HTML幻灯片生成器
 基于PySide6的GUI工具
 """
 
-__version__ = "0.1.19"
+__version__ = "0.1.24"
 __author__ = "HeiBan Contributors"
 
 from .converter import MarkdownToSlideConverter
