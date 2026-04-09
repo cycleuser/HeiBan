@@ -27,7 +27,7 @@ echo "[2/5] Cleaning old builds..."
 rm -rf dist/ build/ *.egg-info heiban.egg-info
 
 echo "[3/5] Installing build tools..."
-"$PYTHON" -m pip install --upgrade build twine -q
+"$PYTHON" -m pip install --upgrade build twine -q --break-system-packages
 
 echo "[4/5] Building package..."
 "$PYTHON" -m build

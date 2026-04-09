@@ -44,9 +44,7 @@ class ConversionThread(QThread):
     error = Signal(str)
     progress = Signal(int, str)
 
-    def __init__(
-        self, converter: MarkdownToSlideConverter, md_content: str, output_path: str
-    ):
+    def __init__(self, converter: MarkdownToSlideConverter, md_content: str, output_path: str):
         super().__init__()
         self.converter = converter
         self.md_content = md_content
@@ -92,17 +90,15 @@ class MainWindow(QMainWindow):
         settings_group = QGroupBox("输出设置")
         settings_layout = QHBoxLayout()
 
-        # 幻灯片尺寸
-        size_layout = QVBoxLayout()
-        size_layout.addWidget(QLabel("幻灯片尺寸"))
-        size_combo = QComboBox()
-        size_combo.addItems(
-            ["1280x720 (标准)", "1920x1080 (高清)", "1024x768 (普屏)", "800x600 (小屏)"]
-        )
-        size_combo.currentIndexChanged.connect(self.on_size_changed)
-        self.size_combo = size_combo
-        size_layout.addWidget(size_combo)
-        settings_layout.addLayout(size_layout)
+        # 幻灯片宽高比
+        ratio_layout = QVBoxLayout()
+        ratio_layout.addWidget(QLabel("宽高比"))
+        ratio_combo = QComboBox()
+        ratio_combo.addItems(["16:9 (宽屏)", "4:3 (普屏)", "21:9 (超宽)", "3:2 (标准)"])
+        ratio_combo.currentIndexChanged.connect(self.on_ratio_changed)
+        self.ratio_combo = ratio_combo
+        ratio_layout.addWidget(ratio_combo)
+        settings_layout.addLayout(ratio_layout)
 
         # 字体大小
         font_layout = QVBoxLayout()
@@ -125,10 +121,15 @@ class MainWindow(QMainWindow):
         theme_layout.addWidget(theme_combo)
         settings_layout.addLayout(theme_layout)
 
-        # 复制lib按钮
-        copy_lib_btn = QPushButton("复制lib文件夹")
-        copy_lib_btn.clicked.connect(self.copy_lib_folder)
-        settings_layout.addWidget(copy_lib_btn)
+        # 代码高亮主题
+        code_theme_layout = QVBoxLayout()
+        code_theme_layout.addWidget(QLabel("代码高亮"))
+        code_theme_combo = QComboBox()
+        code_theme_combo.addItems(["dark (暗色)", "light (亮色)"])
+        code_theme_combo.currentIndexChanged.connect(self.on_code_theme_changed)
+        self.code_theme_combo = code_theme_combo
+        code_theme_layout.addWidget(code_theme_combo)
+        settings_layout.addLayout(code_theme_layout)
 
         settings_layout.addStretch()
         settings_group.setLayout(settings_layout)
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(widget)
 
         label = QLabel(
-            "输入Markdown内容（使用 --- 分隔幻灯片，使用 ```mermaid 分隔图表）："
+            "输入Markdown内容（使用 --- / — / *** 分隔幻灯片，使用 ```mermaid 分隔图表）："
         )
         layout.addWidget(label)
 
@@ -226,10 +227,10 @@ flowchart LR
 
         return widget
 
-    def on_size_changed(self, index: int):
-        sizes = [(1280, 720), (1920, 1080), (1024, 768), (800, 600)]
-        if index < len(sizes):
-            self.converter.width, self.converter.height = sizes[index]
+    def on_ratio_changed(self, index: int):
+        ratios = ["16:9", "4:3", "21:9", "3:2"]
+        if index < len(ratios):
+            self.converter.set_aspect_ratio(ratios[index])
 
     def on_font_size_changed(self, value: int):
         self.converter.font_size = value
@@ -238,6 +239,9 @@ flowchart LR
         themes = ["default", "neutral", "dark", "base"]
         if index < len(themes):
             self.converter.mermaid_theme = themes[index]
+
+    def on_code_theme_changed(self, index: int):
+        self.converter.code_theme = "dark" if index == 0 else "light"
 
     def on_text_changed(self):
         has_content = bool(self.md_textedit.toPlainText().strip())
@@ -315,23 +319,12 @@ flowchart LR
         if not md_content.strip():
             return
 
-        # 生成临时HTML
+        # 生成自包含HTML
         html = self.converter.generate_html(md_content, "预览")
 
-        # 创建临时目录
+        # 创建临时目录和文件
         self.temp_dir = tempfile.mkdtemp()
         temp_html = os.path.join(self.temp_dir, "preview.html")
-
-        # 复制lib文件夹
-        lib_src = self._find_lib_folder()
-        if lib_src:
-            lib_dst = os.path.join(self.temp_dir, "lib")
-            try:
-                if os.path.exists(lib_dst):
-                    shutil.rmtree(lib_dst)
-                shutil.copytree(lib_src, lib_dst)
-            except Exception as e:
-                QMessageBox.warning(self, "警告", f"无法复制lib文件夹：{e}")
 
         # 写入HTML
         with open(temp_html, "w", encoding="utf-8") as f:
@@ -353,19 +346,6 @@ flowchart LR
             self, "预览", "已在浏览器中打开预览页面\n服务器运行在 http://localhost:8765"
         )
 
-    def _find_lib_folder(self) -> Optional[str]:
-        """查找lib文件夹"""
-        possible_paths = [
-            "lib",
-            os.path.join(os.path.dirname(__file__), "lib"),
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib"),
-            os.path.join(os.getcwd(), "lib"),
-        ]
-        for path in possible_paths:
-            if os.path.exists(path) and os.path.isdir(path):
-                return path
-        return None
-
     def _run_server(self, temp_dir: str):
         """运行HTTP服务器"""
         os.chdir(temp_dir)
@@ -386,25 +366,6 @@ flowchart LR
             sock.close()
         except Exception:
             pass
-
-    def copy_lib_folder(self):
-        """复制lib文件夹到目标位置"""
-        path = QFileDialog.getExistingDirectory(self, "选择目标目录")
-        if path:
-            lib_src = self._find_lib_folder()
-            if lib_src:
-                lib_dst = os.path.join(path, "lib")
-                try:
-                    if os.path.exists(lib_dst):
-                        shutil.rmtree(lib_dst)
-                    shutil.copytree(lib_src, lib_dst)
-                    QMessageBox.information(
-                        self, "成功", f"lib文件夹已复制到：{lib_dst}"
-                    )
-                except Exception as e:
-                    QMessageBox.critical(self, "错误", f"复制失败：{e}")
-            else:
-                QMessageBox.warning(self, "未找到", "lib文件夹不存在")
 
     def closeEvent(self, event):
         """关闭窗口时清理"""
