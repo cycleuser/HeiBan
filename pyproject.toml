@@ -30,6 +30,8 @@ classifiers = [
 
 dependencies = [
     "PySide6>=6.5.0",
+    "markdown-it-py>=3.0.0",
+    "mdit-py-plugins>=0.4.0",
 ]
 
 [project.optional-dependencies]
