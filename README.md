@@ -9,6 +9,11 @@ English | [中文](README_CN.md)
 
 A PySide6-based desktop application that converts Markdown documents into reveal.js HTML slides, with high-quality PPTX and PDF export.
 
+![PPTX Black Theme - Title](images/pptx-black-slide1.png)
+![PPTX Black Theme - Code Highlighting](images/pptx-black-slide2.png)
+![PPTX Black Theme - Math Formulas](images/pptx-black-slide6.png)
+![PPTX Black Theme - Comprehensive](images/pptx-black-slide10.png)
+
 ## Features
 
 ### Core Features
@@ -32,11 +37,18 @@ A PySide6-based desktop application that converts Markdown documents into reveal
 - **12 Themes** - black, white, dracula, league, beige, sky, night, moon, solarized, blood, serif, simple
 - **Custom Settings** - Adjustable font size, aspect ratio, Mermaid themes, etc.
 
+![PPTX Dracula Theme](images/pptx-dracula-slide1.png)
+![PPTX Moon Theme](images/pptx-moon-slide1.png)
+
 ### Export Features
 - **HTML Export** - Generates self-contained HTML files with no external dependencies
 - **PPTX Export** - High-quality PowerPoint export with real math rendering, syntax highlighting, and Mermaid diagrams
 - **PDF Export** - Uses Qt built-in functionality or Playwright to generate PDF, preserving all styles
 - **Auto Pagination** - Each slide automatically becomes one page
+
+![HTML Export](images/html-fullpage.png)
+![PDF Export - Code](images/pdf-slide-2.png)
+![PDF Export - Math](images/pdf-slide-6.png)
 
 ## Installation
 

@@ -9,6 +9,11 @@
 
 一款基于 PySide6 的桌面应用，将 Markdown 文档转换为 reveal.js HTML 幻灯片，并支持高质量 PPTX 和 PDF 导出。
 
+![PPTX 黑色主题 - 标题页](images/pptx-black-slide1.png)
+![PPTX 黑色主题 - 代码高亮](images/pptx-black-slide2.png)
+![PPTX 黑色主题 - 数学公式](images/pptx-black-slide6.png)
+![PPTX 黑色主题 - 综合示例](images/pptx-black-slide10.png)
+
 ## 特性
 
 ### 核心功能
@@ -32,11 +37,18 @@
 - **12 套主题** - black, white, dracula, league, beige, sky, night, moon, solarized, blood, serif, simple
 - **自定义设置** - 可调整字体大小、宽高比、Mermaid 主题等
 
+![PPTX Dracula 主题](images/pptx-dracula-slide1.png)
+![PPTX Moon 主题](images/pptx-moon-slide1.png)
+
 ### 导出功能
 - **HTML 导出** - 生成自包含的 HTML 文件，无外部依赖
 - **PPTX 导出** - 高质量 PowerPoint 导出：真实数学渲染、语法高亮、Mermaid 图表
 - **PDF 导出** - 使用 Qt 内置功能或 Playwright 生成 PDF，保留所有样式
 - **自动分页** - 每张幻灯片自动分成一页
+
+![HTML 导出效果](images/html-fullpage.png)
+![PDF 导出效果 - 代码](images/pdf-slide-2.png)
+![PDF 导出效果 - 数学](images/pdf-slide-6.png)
 
 ## 安装
 
