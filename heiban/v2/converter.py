@@ -36,6 +36,8 @@ def _load_lib_files() -> dict:
     for css_file in [
         "reveal.min.css",
         "katex.min.css",
+        "github-dark.min.css",
+        "github-light-theme.css",
     ]:
         fpath = lib_path / "css" / css_file
         if fpath.exists():
@@ -165,7 +167,93 @@ class MarkdownToSlideConverterV2:
                 content,
             )
 
+        content = self._convert_mermaid_blocks(content)
+
         return content
+
+    def _convert_mermaid_blocks(self, html: str) -> str:
+        """将 <pre><code class="language-mermaid">...</code></pre> 转为内嵌 SVG。
+
+        优先用 mmdc 预渲染为 SVG，失败则保留 <div class="mermaid"> 做 JS fallback。
+        """
+        def _replace_mermaid(m: re.Match) -> str:
+            import html as html_mod
+            code = html_mod.unescape(m.group(1)).strip()
+            is_dark = self._get_theme_colors()["is_dark"]
+            theme = "dark" if is_dark else "default"
+            svg = self._render_mermaid_to_svg(code, theme)
+            if svg:
+                return f'<div class="mermaid-svg">{svg}</div>'
+            return f'<div class="mermaid">{code}</div>'
+
+        return re.sub(
+            r'<pre><code\s+class="language-mermaid"[^>]*>(.*?)</code></pre>',
+            _replace_mermaid,
+            html,
+            flags=re.DOTALL,
+        )
+
+    @staticmethod
+    def _render_mermaid_to_svg(mermaid_code: str, theme: str = "dark") -> str | None:
+        """使用 mmdc 渲染 mermaid 为 SVG，失败返回 None"""
+        import subprocess
+        import tempfile
+        from pathlib import Path
+
+        safe_code = mermaid_code.replace("\u201c", '"').replace("\u201d", '"').replace("\u2018", "'").replace("\u2019", "'")
+        safe_code = MarkdownToSlideConverterV2._fix_mermaid_syntax(safe_code)
+
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".mmd", delete=False) as f:
+                f.write(safe_code)
+                mmd_file = f.name
+
+            svg_file = mmd_file.replace(".mmd", ".svg")
+            result = subprocess.run(
+                ["mmdc", "-i", mmd_file, "-o", svg_file, "-t", theme, "-b", "transparent"],
+                capture_output=True,
+                timeout=10,
+            )
+
+            svg = None
+            if result.returncode == 0 and Path(svg_file).exists():
+                with open(svg_file, encoding="utf-8") as f:
+                    svg = f.read()
+
+            try:
+                Path(mmd_file).unlink(missing_ok=True)
+                Path(svg_file).unlink(missing_ok=True)
+            except OSError:
+                pass
+
+            return svg
+        except Exception:
+            return None
+
+    @staticmethod
+    def _fix_mermaid_syntax(code: str) -> str:
+        """修复 mermaid 语法：给含特殊字符的节点标签加双引号"""
+        lines = code.split("\n")
+        fixed = []
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("subgraph") or stripped.startswith("end") or stripped.startswith(("style ", "classDef ", "click ")):
+                fixed.append(line)
+                continue
+            if not stripped or stripped.startswith(("%%", "---", "sequenceDiagram", "flowchart", "graph", "pie", "gantt", "gitGraph", "journey", "stateDiagram", "erDiagram", "classDiagram", "mindmap", "timeline")):
+                fixed.append(line)
+                continue
+
+            def quote_label(m):
+                node_id = m.group(1)
+                label = m.group(2)
+                if '"' in label or "\u201c" in label or "\u201d" in label:
+                    return m.group(0)
+                return f'{node_id}["{label}"]'
+
+            line = re.sub(r'(\w+)\[([^\[\]]*[\(\)\{\}<>~][^\[\]]*)\]', quote_label, line)
+            fixed.append(line)
+        return "\n".join(fixed)
 
     def _build_section_tag(self, slide: Slide, is_nested: bool = False) -> str:
         """构建 reveal.js <section> 标签"""
@@ -615,6 +703,7 @@ class MarkdownToSlideConverterV2:
         katex_css = _LIBS.get("katex.min.css", "")
         katex_js = _LIBS.get("katex.min.js", "")
         auto_render_js = _LIBS.get("auto-render.min.js", "")
+        hljs_css = _LIBS.get("github-dark.min.css", "") if colors["is_dark"] else _LIBS.get("github-light-theme.css", "")
 
         custom_css = self._get_base_styles()
 
@@ -678,6 +767,7 @@ class MarkdownToSlideConverterV2:
 {theme_css}
 {custom_css}
 {katex_css}
+{hljs_css}
     </style>
 </head>
 <body>
@@ -700,8 +790,36 @@ class MarkdownToSlideConverterV2:
     </script>
     <script>
 {auto_render_js}
-    </script>
+     </script>
     <script>
+        mermaid.initialize({{
+            startOnLoad: false,
+            theme: '{mermaid_theme}',
+            securityLevel: 'loose',
+        }});
+        function renderMermaidInSlide(slideEl) {{
+            if (!slideEl) return;
+            slideEl.querySelectorAll('.mermaid:not([data-processed])').forEach(function(el) {{
+                el.setAttribute('data-processed', 'true');
+                mermaid.run({{nodes: [el]}});
+            }});
+        }}
+        function renderAllOnSlide(slideEl) {{
+            if (!slideEl) return;
+            slideEl.querySelectorAll('pre code').forEach(function(block) {{
+                hljs.highlightElement(block);
+            }});
+            renderMathInElement(slideEl, {{
+                delimiters: [
+                    {{left: '$$', right: '$$', display: true}},
+                    {{left: '$', right: '$', display: false}},
+                    {{left: '\\\\[', right: '\\\\]', display: true}},
+                    {{left: '\\\\(', right: '\\\\)', display: false}}
+                ],
+                throwOnError: false
+            }});
+            renderMermaidInSlide(slideEl);
+        }}
         Reveal.initialize({{
             hash: {str(self.hash).lower()},
             slideNumber: '{self.slide_number}',
@@ -713,21 +831,11 @@ class MarkdownToSlideConverterV2:
             transition: '{self.transition}',
             transitionSpeed: '{self.transition_speed}',
             center: {str(self.center).lower()},
+        }}).then(function() {{
+            renderAllOnSlide(Reveal.getCurrentSlide());
         }});
-        mermaid.initialize({{
-            startOnLoad: true,
-            theme: '{mermaid_theme}',
-            securityLevel: 'loose',
-        }});
-        hljs.highlightAll();
-        renderMathInElement(document.body, {{
-            delimiters: [
-                {{left: '$$', right: '$$', display: true}},
-                {{left: '$', right: '$', display: false}},
-                {{left: '\\\\[', right: '\\\\]', display: true}},
-                {{left: '\\\\(', right: '\\\\)', display: false}}
-            ],
-            throwOnError: false
+        Reveal.on('slidechanged', function(event) {{
+            renderAllOnSlide(event.currentSlide);
         }});
     </script>
 </body>
@@ -738,6 +846,7 @@ class MarkdownToSlideConverterV2:
         """生成使用 CDN 链接的 HTML"""
         colors = self._get_theme_colors()
         mermaid_theme = "dark" if colors["is_dark"] else "default"
+        hljs_cdn_theme = "github-dark" if colors["is_dark"] else "github"
 
         theme_css = f"""
 /* Theme Colors */
@@ -798,6 +907,7 @@ class MarkdownToSlideConverterV2:
     <title>{title}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/{hljs_cdn_theme}.min.css">
     <style>
 {theme_css}
 {custom_css}
@@ -809,12 +919,40 @@ class MarkdownToSlideConverterV2:
 {slides_html}
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script>
+        mermaid.initialize({{
+            startOnLoad: false,
+            theme: '{mermaid_theme}',
+            securityLevel: 'loose',
+        }});
+        function renderMermaidInSlide(slideEl) {{
+            if (!slideEl) return;
+            slideEl.querySelectorAll('.mermaid:not([data-processed])').forEach(function(el) {{
+                el.setAttribute('data-processed', 'true');
+                mermaid.run({{nodes: [el]}});
+            }});
+        }}
+        function renderAllOnSlide(slideEl) {{
+            if (!slideEl) return;
+            slideEl.querySelectorAll('pre code').forEach(function(block) {{
+                hljs.highlightElement(block);
+            }});
+            renderMathInElement(slideEl, {{
+                delimiters: [
+                    {{left: '$$', right: '$$', display: true}},
+                    {{left: '$', right: '$', display: false}},
+                    {{left: '\\\\[', right: '\\\\]', display: true}},
+                    {{left: '\\\\(', right: '\\\\)', display: false}}
+                ],
+                throwOnError: false
+            }});
+            renderMermaidInSlide(slideEl);
+        }}
         Reveal.initialize({{
             hash: {str(self.hash).lower()},
             slideNumber: '{self.slide_number}',
@@ -826,21 +964,11 @@ class MarkdownToSlideConverterV2:
             transition: '{self.transition}',
             transitionSpeed: '{self.transition_speed}',
             center: {str(self.center).lower()},
+        }}).then(function() {{
+            renderAllOnSlide(Reveal.getCurrentSlide());
         }});
-        mermaid.initialize({{
-            startOnLoad: true,
-            theme: '{mermaid_theme}',
-            securityLevel: 'loose',
-        }});
-        hljs.highlightAll();
-        renderMathInElement(document.body, {{
-            delimiters: [
-                {{left: '$$', right: '$$', display: true}},
-                {{left: '$', right: '$', display: false}},
-                {{left: '\\\\[', right: '\\\\]', display: true}},
-                {{left: '\\\\(', right: '\\\\)', display: false}}
-            ],
-            throwOnError: false
+        Reveal.on('slidechanged', function(event) {{
+            renderAllOnSlide(event.currentSlide);
         }});
     </script>
 </body>

@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from heiban.v2.converter import MarkdownToSlideConverterV2
-from heiban.v2.md_parser import MarkdownSlideParser
+from heiban.v2.md_parser import MarkdownSlideParser, _protect_math, _restore_math
 
 
 class TestMarkdownSlideParser:
@@ -132,6 +132,51 @@ class TestMarkdownSlideParser:
         assert "print" in slides[0].content
 
 
+class TestMathProtection:
+    """测试数学公式保护（防止 markdown-it HTML 转义）"""
+
+    def test_protect_display_math(self):
+        text, blocks = _protect_math("$$x^2$$")
+        assert len(blocks) == 1
+        assert blocks[0] == "$$x^2$$"
+        assert "MATHPLACEHOLDER" in text
+        restored = _restore_math(text, blocks)
+        assert restored == "$$x^2$$"
+
+    def test_protect_inline_math(self):
+        text, blocks = _protect_math("Euler: $e^{i\\pi} + 1 = 0$")
+        assert len(blocks) == 1
+        restored = _restore_math(text, blocks)
+        assert "$e^{i" in restored
+
+    def test_protect_matrix_ampersand(self):
+        text, blocks = _protect_math("$$\\begin{bmatrix} a & b \\end{bmatrix}$$")
+        assert len(blocks) == 1
+        assert "& " in blocks[0]
+        restored = _restore_math(text, blocks)
+        assert "a & b" in restored
+        assert "a &amp; b" not in restored
+
+    def test_protect_backslash_brackets(self):
+        text, blocks = _protect_math("\\(x^2\\)")
+        assert len(blocks) == 1
+        restored = _restore_math(text, blocks)
+        assert "\\(x^2\\)" in restored
+
+    def test_protect_multiple_blocks(self):
+        text = "Inline $x^2$ and display $$b$$ and inline $a^2 + b^2$"
+        text_p, blocks = _protect_math(text)
+        assert len(blocks) == 3
+        restored = _restore_math(text_p, blocks)
+        assert restored == text
+
+    def test_no_math_unchanged(self):
+        text = "No math here, just text."
+        text_p, blocks = _protect_math(text)
+        assert len(blocks) == 0
+        assert text_p == text
+
+
 class TestMarkdownToSlideConverterV2:
     """测试 v2 转换器"""
 
@@ -241,3 +286,24 @@ class TestMarkdownToSlideConverterV2:
         output = converter.convert_file(str(md_file), str(output_file))
         assert output == str(output_file)
         assert Path(output).exists()
+
+    def test_mermaid_conversion(self):
+        converter = MarkdownToSlideConverterV2()
+        md = "```mermaid\ngraph TD\n    A-->B\n```"
+        html = converter.convert(md, title="Test")
+        assert "language-mermaid" not in html
+        assert ("mermaid-svg" in html or "mermaid" in html)
+        assert "graph TD" in html or "<svg" in html
+
+    def test_math_protection(self):
+        converter = MarkdownToSlideConverterV2()
+        md = "Matrix:\n\n$$\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}$$"
+        html = converter.convert(md, title="Test")
+        assert "bmatrix" in html
+        assert "a &amp; b" not in html
+
+    def test_inline_math_protection(self):
+        converter = MarkdownToSlideConverterV2()
+        md = "Euler: $e^{i\\pi} + 1 = 0$"
+        html = converter.convert(md, title="Test")
+        assert "$e^{i" in html

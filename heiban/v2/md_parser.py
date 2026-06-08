@@ -254,6 +254,48 @@ def _add_fragments_to_html(html: str, fragments: List[dict]) -> str:
     return html
 
 
+def _protect_math(text: str) -> tuple[str, list[str]]:
+    """Extract math blocks before markdown-it processing to prevent HTML escaping.
+
+    Replaces $$...$$ and $...$ with placeholders, returns (protected_text, math_blocks).
+    Inline math $...$ must contain at least one math-like character (\\^_{}=+-/<>|)
+    to avoid false positives on currency like "$100 and $200".
+    """
+    blocks = []
+
+    def _store(m: re.Match) -> str:
+        blocks.append(m.group(0))
+        return f"MATHPLACEHOLDER{len(blocks) - 1}ENDMATHPLACEHOLDER"
+
+    # Protect code blocks first - don't let math regex match inside them
+    code_blocks = []
+
+    def _store_code(m: re.Match) -> str:
+        code_blocks.append(m.group(0))
+        return f"CODEPLACEHOLDER{len(code_blocks) - 1}ENDCODEPLACEHOLDER"
+
+    text = re.sub(r"```[\s\S]+?```", _store_code, text)
+    text = re.sub(r"`[^`\n]+`", _store_code, text)
+
+    text = re.sub(r"\$\$[\s\S]+?\$\$", _store, text)
+    text = re.sub(r"(?<!\$)\$(?!\$)((?:[^$\n]|\\.)+?[\\^_{}=+\-/<>()|])[^$\n]*?(?<!\$)\$(?!\$)", _store, text)
+    text = re.sub(r"\\\([\s\S]+?\\\)", _store, text)
+    text = re.sub(r"\\\[.+?\\\]", _store, text)
+
+    # Restore code blocks
+    for i, code in enumerate(code_blocks):
+        text = text.replace(f"CODEPLACEHOLDER{i}ENDCODEPLACEHOLDER", code)
+
+    return text, blocks
+
+
+def _restore_math(html: str, blocks: list[str]) -> str:
+    """Restore math blocks after markdown-it processing."""
+    for i, block in enumerate(blocks):
+        html = html.replace(f"MATHPLACEHOLDER{i}ENDMATHPLACEHOLDER", block)
+    return html
+
+
 class MarkdownSlideParser:
     """Markdown 幻灯片解析器
 
@@ -395,7 +437,9 @@ class MarkdownSlideParser:
         fragments: Optional[List[dict]] = None,
     ) -> Slide:
         """创建解析后的幻灯片对象"""
-        html = self.md.render(content)
+        protected, math_blocks = _protect_math(content)
+        html = self.md.render(protected)
+        html = _restore_math(html, math_blocks)
         html, notes = _parse_notes(html)
 
         if fragments:
