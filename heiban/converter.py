@@ -8,7 +8,7 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 
 def _get_lib_path() -> Path:
@@ -34,7 +34,7 @@ def _load_lib_files() -> dict:
     ]:
         fpath = lib_path / "js" / js_file
         if fpath.exists():
-            with open(fpath, "r", encoding="utf-8") as f:
+            with open(fpath, encoding="utf-8") as f:
                 libs[js_file] = f.read()
     for css_file in [
         "reveal.min.css",
@@ -44,7 +44,7 @@ def _load_lib_files() -> dict:
     ]:
         fpath = lib_path / "css" / css_file
         if fpath.exists():
-            with open(fpath, "r", encoding="utf-8") as f:
+            with open(fpath, encoding="utf-8") as f:
                 libs[css_file] = f.read()
     return libs
 
@@ -180,7 +180,7 @@ class MarkdownToSlideConverter:
             )
 
             if result.returncode == 0 and Path(svg_file).exists():
-                with open(svg_file, "r") as f:
+                with open(svg_file) as f:
                     svg = f.read()
                 Path(mmd_file).unlink()
                 Path(svg_file).unlink()
@@ -835,7 +835,7 @@ html {{
 
     def convert_file(self, input_path: str, output_path: Optional[str] = None) -> str:
         """转换文件"""
-        with open(input_path, "r", encoding="utf-8") as f:
+        with open(input_path, encoding="utf-8") as f:
             md_content = f.read()
 
         if output_path is None:

@@ -1,10 +1,9 @@
 """HeiBan v2 转换器测试"""
 
-import pytest
 from pathlib import Path
 
-from heiban.v2.md_parser import MarkdownSlideParser, Slide, SlideAttributes
 from heiban.v2.converter import MarkdownToSlideConverterV2
+from heiban.v2.md_parser import MarkdownSlideParser
 
 
 class TestMarkdownSlideParser:

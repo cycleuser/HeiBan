@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """
 HeiBan CLI - 命令行接口
+
+Markdown -> reveal.js HTML 幻灯片
+支持导出: HTML, PDF, PPTX
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
 
 from .converter import MarkdownToSlideConverter
@@ -19,18 +22,16 @@ def main():
         epilog="""
 示例:
   %(prog)s input.md -o output.html
-  %(prog)s input.md --v2 -o output.html
-  %(prog)s input.md --v2 --pdf output.pdf
+  %(prog)s input.md --pptx output.pptx
+  %(prog)s input.md --pdf output.pdf
+  %(prog)s input.md --pdf output.pdf --pdf-backend weasyprint
   %(prog)s input.md --width 1920 --height 1080
   %(prog)s --gui
 
-v2 新功能:
-  - 完整 GFM Markdown 支持 (表格、任务列表、删除线、脚注等)
-  - 垂直幻灯片 (使用 ---- 分隔)
-  - 幻灯片属性 (背景、转场等)
-  - Fragment 动画
-  - 演讲者备注
-  - 矢量完美 PDF 导出 (基于 Playwright)
+导出格式:
+  HTML  - 默认, reveal.js 幻灯片
+  PDF  - WeasyPrint (轻量) 或 Playwright (高质量)
+  PPTX - PowerPoint 格式, 支持标题/列表/代码/表格等
         """,
     )
 
@@ -47,22 +48,13 @@ v2 新功能:
     )
     parser.add_argument("--gui", action="store_true", help="启动GUI界面")
 
-    v2_group = parser.add_argument_group("v2 选项")
+    v2_group = parser.add_argument_group("v2 选项 (推荐)")
     v2_group.add_argument("--v2", action="store_true", help="使用 v2 转换器 (推荐)")
     v2_group.add_argument(
         "--reveal-theme",
         choices=[
-            "black",
-            "white",
-            "league",
-            "beige",
-            "sky",
-            "night",
-            "serif",
-            "simple",
-            "solarized",
-            "blood",
-            "moon",
+            "black", "white", "league", "beige", "sky",
+            "night", "serif", "simple", "solarized", "blood", "moon",
         ],
         default="black",
         help="reveal.js 主题 (v2, 默认: black)",
@@ -80,23 +72,30 @@ v2 新功能:
         help="宽高比 (v2, 默认: 16:9)",
     )
     v2_group.add_argument("--cdn", action="store_true", help="使用 CDN 链接 (v2)")
-    v2_group.add_argument("--pdf", help="导出为 PDF (v2, 需要 Playwright)")
+    v2_group.add_argument("--pptx", help="导出为 PPTX (PowerPoint)")
+    v2_group.add_argument("--pdf", help="导出为 PDF")
+    v2_group.add_argument(
+        "--pdf-backend",
+        choices=["auto", "weasyprint", "playwright"],
+        default="auto",
+        help="PDF 后端 (默认: auto 自动检测)",
+    )
     v2_group.add_argument(
         "--pdf-wait",
         type=int,
         default=3000,
-        help="PDF 导出等待渲染时间/毫秒 (v2, 默认: 3000)",
+        help="PDF 导出等待渲染时间/毫秒 (Playwright, 默认: 3000)",
     )
     v2_group.add_argument(
         "--landscape",
         action="store_true",
         default=True,
-        help="PDF 横向 (v2, 默认)",
+        help="PDF 横向 (默认)",
     )
     v2_group.add_argument(
         "--portrait",
         action="store_true",
-        help="PDF 纵向 (v2)",
+        help="PDF 纵向",
     )
 
     args = parser.parse_args()
@@ -140,28 +139,59 @@ def _run_v2(input_path: Path, args) -> int:
     converter.transition = args.transition
 
     html_output = args.output
-    if html_output is None:
+    if html_output is None and not args.pdf and not args.pptx:
         html_output = str(input_path.with_suffix(".html"))
 
     converter.image_base_path = input_path.parent
-    html_content = converter.convert(
-        input_path.read_text(encoding="utf-8"),
-        title=input_path.stem,
-        use_cdn=args.cdn,
-    )
+    md_content = input_path.read_text(encoding="utf-8")
 
-    Path(html_output).write_text(html_content, encoding="utf-8")
-    print(f"HTML 转换完成: {html_output}")
+    if html_output:
+        html_content = converter.convert(
+            md_content,
+            title=input_path.stem,
+            use_cdn=args.cdn,
+        )
+        Path(html_output).write_text(html_content, encoding="utf-8")
+        print(f"HTML 转换完成: {html_output}")
+
+    if args.pptx:
+        from .pptx_exporter import PPTXExporter
+        from .v2.md_parser import MarkdownSlideParser
+
+        parser = MarkdownSlideParser()
+        slides = parser.parse(md_content)
+
+        exporter = PPTXExporter()
+        exporter.theme = args.reveal_theme
+        exporter.aspect_ratio = args.aspect_ratio
+
+        pptx_path = args.pptx
+        exporter.export(slides, pptx_path, title=input_path.stem)
+        print(f"PPTX 导出完成: {pptx_path}")
 
     if args.pdf:
-        from .v2.pdf_exporter import PDFExporter
+        from .pdf_exporter import PDFExporter
 
-        exporter = PDFExporter()
+        if args.pdf_backend == "auto":
+            backend = None
+        else:
+            backend = args.pdf_backend
+
+        exporter = PDFExporter(backend=backend)
         exporter.landscape = not args.portrait
         exporter.wait_time = args.pdf_wait
 
-        pdf_path = exporter.export_html_file(html_output, args.pdf)
-        print(f"PDF 导出完成: {pdf_path}")
+        if html_output and Path(html_output).exists():
+            pdf_path = exporter.export_html_file(html_output, args.pdf)
+        else:
+            html_content = converter.convert(
+                md_content,
+                title=input_path.stem,
+                use_cdn=True,
+            )
+            pdf_path = exporter.export_html_content(html_content, args.pdf)
+
+        print(f"PDF 导出完成: {pdf_path} (后端: {exporter.backend_name})")
 
     return 0
 

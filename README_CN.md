@@ -1,209 +1,114 @@
-# HeiBan - Mermaid转HTML幻灯片生成器
+# HeiBan - Markdown 转幻灯片生成器
 
-[English](README_EN.md) | 中文
+[English](README.md) | 中文
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/License-GPL--3.0-green.svg)
 ![PyPI](https://img.shields.io/badge/PyPI-heiban-orange.svg)
-![Version](https://img.shields.io/badge/Version-0.1.32-blue.svg)
+![Version](https://img.shields.io/badge/Version-0.3.0-blue.svg)
 
-一款基于PySide6的桌面应用，用于将Markdown文档（含Mermaid图表）转换为reveal.js格式的HTML幻灯片，并支持导出为PDF。
+一款基于 PySide6 的桌面应用，将 Markdown 文档转换为 reveal.js HTML 幻灯片，并支持高质量 PPTX 和 PDF 导出。
 
 ## 特性
 
 ### 核心功能
-- **Markdown转幻灯片** - 使用`---`分隔幻灯片，支持标题、列表、代码块、表格等
-- **Mermaid图表** - 自动识别并渲染流程图、时序图、甘特图等
-- **代码高亮** - GitHub风格代码高亮，支持多种编程语言
-- **数学公式** - 支持KaTeX数学公式渲染（`$...$` 和 `$$...$$`）
+- **Markdown 转幻灯片** - 使用 `---` 分隔幻灯片，支持标题、列表、代码块、表格、引用块、图片
+- **Mermaid 图表** - 自动识别并渲染流程图、时序图、甘特图等
+- **代码高亮** - GitHub 风格语法高亮，支持 100+ 编程语言
+- **数学公式** - 完整 LaTeX 数学支持（`$...$` 行内、`$$...$$` 独立显示），通过 pdflatex 渲染为高质量图片
+
+### PPTX 导出（v0.3 全新）
+- **LaTeX 数学渲染** - pdflatex + PyMuPDF 管线：LaTeX → PDF → 高清 PNG，无 pdflatex 时自动 fallback 到 matplotlib
+- **GitHub 风格语法高亮** - 基于 Pygments 的逐 token 着色，完美匹配 GitHub 暗色/亮色主题
+- **Mermaid 图表渲染** - mmdc 渲染为 PNG；含特殊字符的节点标签自动加引号修复
+- **12 套内置主题** - black, white, dracula, league, beige, sky, night, moon, solarized, blood, serif, simple
+- **双列自动布局** - 内容密集时自动分双列，而非缩小字体
+- **开源字体** - 正文/标题用 Source Sans 3，代码用 Source Code Pro（均 SIL 开源协议）
+- **统一排版比例** - 所有字号基于单一基础字号（默认 18pt）的比例派生
+- **表格公式** - 表格单元格中的 LaTeX 命令转为 Unicode + 斜体强调色
 
 ### 主题支持
 - **暗色/亮色主题** - 完整的深色和浅色主题支持
-- **自定义设置** - 可调整字体大小、宽高比、Mermaid主题等
-- **样式保留** - PDF导出完美保留所有样式（背景色、文字颜色等）
+- **12 套主题** - black, white, dracula, league, beige, sky, night, moon, solarized, blood, serif, simple
+- **自定义设置** - 可调整字体大小、宽高比、Mermaid 主题等
 
 ### 导出功能
-- **HTML导出** - 生成自包含的HTML文件，无外部依赖
-- **PDF导出** - 使用Qt内置功能生成PDF，保留所有样式
+- **HTML 导出** - 生成自包含的 HTML 文件，无外部依赖
+- **PPTX 导出** - 高质量 PowerPoint 导出：真实数学渲染、语法高亮、Mermaid 图表
+- **PDF 导出** - 使用 Qt 内置功能或 Playwright 生成 PDF，保留所有样式
 - **自动分页** - 每张幻灯片自动分成一页
 
 ## 安装
 
-### 从PyPI安装
+### 从 PyPI 安装
 
 ```bash
 pip install heiban
 ```
 
+### 最佳 PPTX 质量（可选）
+
+```bash
+pip install heiban[pptx-hq]
+```
+
+安装 PyMuPDF 以获取高质量数学渲染。缺省时使用 matplotlib fallback。还需 `pdflatex`（TeX Live 或 MiKTeX）和 `mmdc`（mermaid-cli）以获得最佳效果。
+
 ### 从源码安装
 
 ```bash
-git clone https://github.com/yourusername/HeiBan.git
+git clone https://github.com/cycleuser/HeiBan.git
 cd HeiBan
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 ## 使用方法
 
-### GUI模式
+### GUI 模式
 
 ```bash
 heiban
 ```
 
-#### GUI功能说明
-
-1. **打开Markdown文件** - 加载`.md`文件
-2. **保存HTML文件** - 导出为自包含的HTML幻灯片
-3. **导出PDF** - 生成PDF文件，完美保留样式
-
-#### 设置菜单
-
-- **宽高比** - 16:9（宽屏）、4:3（普屏）、21:9（超宽）、3:2（标准）
-- **字体大小** - 16px 到 40px
-- **Mermaid主题** - default、neutral、dark、base
-- **代码高亮主题** - dark（暗色）、light（亮色）
-
 ### 命令行模式
 
 ```bash
-# 基本用法
+# 导出 HTML
 heiban input.md -o output.html
 
-# 指定尺寸
-heiban input.md --width 1920 --height 1080
+# 导出 PPTX
+heiban input.md --pptx output.pptx
+
+# 导出 PDF
+heiban input.md --pdf output.pdf
+
+# 指定主题
+heiban input.md --pptx output.pptx --theme dracula
 
 # 查看帮助
 heiban --help
 ```
 
-## Markdown格式示例
-
-```markdown
-# 演示标题
-
-## 第一页：列表和代码
-
-- 列表项1
-- 列表项2
-- 列表项3
-
-```python
-def hello():
-    print("Hello, World!")
-```
-
----
-
-## 第二页：Mermaid图表
-
-```mermaid
-flowchart LR
-    A[开始] --> B[处理]
-    B --> C[结束]
-```
-
----
-
-## 第三页：表格和公式
-
-| 项目 | 数量 | 价格 |
-|------|------|------|
-| A    | 10   | $100 |
-| B    | 20   | $200 |
-
-数学公式：$E = mc^2$
-
-$$
-\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
-$$
-```
-
-## 项目结构
-
-```
-heiban/
-├── heiban/
-│   ├── __init__.py          # 包初始化
-│   ├── converter.py         # 转换器核心
-│   ├── gui.py               # GUI界面
-│   └── data/
-│       └── lib/             # JS/CSS资源文件
-│           ├── js/
-│           │   ├── reveal.min.js
-│           │   ├── mermaid.min.js
-│           │   ├── highlight.min.js
-│           │   └── katex.min.js
-│           └── css/
-│               ├── reveal.min.css
-│               ├── katex.min.css
-│               └── ...
-├── tests/                   # 测试文件
-├── pyproject.toml          # 项目配置
-└── README.md               # 说明文档
-```
-
-## 技术栈
-
-### 前端技术
-- **reveal.js** - 幻灯片框架
-- **Mermaid** - 图表渲染
-- **highlight.js** - 代码高亮
-- **KaTeX** - 数学公式渲染
-
-### 后端技术
-- **Python 3.8+** - 核心语言
-- **PySide6** - Qt GUI框架
-- **Qt Print Support** - PDF生成
-
-## 开发
-
-### 安装开发依赖
-
-```bash
-pip install -e ".[dev]"
-```
-
-### 运行测试
-
-```bash
-pytest tests/ -v
-```
-
-### 代码检查
-
-```bash
-ruff check .
-ruff format .
-```
-
-## 依赖要求
-
-- Python >= 3.8
-- PySide6 >= 6.5.0
-
-## 已知限制
-
-1. **PDF导出** - 不支持JavaScript动画效果，Mermaid图表需要预先渲染
-2. **资源大小** - 生成的HTML文件较大（约4MB），因为包含所有JS/CSS资源
-3. **浏览器兼容** - 推荐使用现代浏览器（Chrome、Firefox、Safari）
-
 ## 更新日志
 
-### v0.1.32 (2026-04-09)
-- 修复PDF导出枚举类型错误
-- 改进Qt打印功能
-- 优化错误处理
+### v0.3.0 (2026-06-08)
+- **新增**：完整 PPTX 导出引擎，支持数学/代码/Mermaid 渲染
+- **新增**：pdflatex + PyMuPDF 管线：LaTeX → PDF → 高清 PNG
+- **新增**：GitHub 风格 Pygments 语法高亮
+- **新增**：Mermaid 图表通过 mmdc 渲染，含特殊字符的标签自动修复
+- **新增**：12 套内置主题
+- **新增**：内容密集时自动双列布局
+- **新增**：Source Sans 3 + Source Code Pro 开源字体
+- **新增**：统一排版比例体系
+- **新增**：表格中 LaTeX→Unicode 转换 + 斜体强调
+- **修复**：元素按文档顺序排列（不再标题和正文分组）
+- **修复**：图片宽高比在所有上下文中保持
+- **修复**：Mermaid 节点标签含 `()` 自动加引号
+- **修复**：`<pre>` 不再被误匹配为 `<p>`
 
-### v0.1.30 (2026-04-09)
-- 简化GUI界面，移除预览Tab
-- 使用Qt QTextDocument生成PDF
-- 完善文档
-
-### v0.1.28 (2026-04-09)
-- 完整实现暗色主题
-- 修复reveal.js默认样式覆盖问题
-- 改进表格样式
+### v0.2.0 (2026-04-09)
+- v2 转换器及改进的 Markdown 解析器
+- PDF 导出改进
 
 ## 许可证
 
@@ -211,9 +116,9 @@ GPL-3.0-or-later
 
 ## 贡献
 
-欢迎提交Issue和Pull Request！
+欢迎提交 Issue 和 Pull Request！
 
 ## 联系方式
 
-- 项目地址：https://github.com/yourusername/HeiBan
-- 问题反馈：https://github.com/yourusername/HeiBan/issues
+- 项目地址：https://github.com/cycleuser/HeiBan
+- 问题反馈：https://github.com/cycleuser/HeiBan/issues
